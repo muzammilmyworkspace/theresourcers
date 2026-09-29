@@ -1,0 +1,117 @@
+/* ==========================================================
+   WHY — real-time ocean + ship + cloud wall
+   ========================================================== */
+.home-why { position: relative; background: #021436; color: #fff; }
+.why-scroll { position: relative; height: 520vh; }
+.why-stage {
+  position: sticky; top: 0;
+  height: 100vh; height: 100svh;
+  overflow: hidden; isolation: isolate;
+  background: #021436;
+}
+.why-ocean { position: absolute; inset: 0; width: 100%; height: 100%; visibility: hidden; }
+
+/* mobile water (no WebGL) */
+.why-ocean-mb { display: none; position: absolute; inset: 0; overflow: hidden; }
+.why-ocean-mb-inner {
+  position: absolute; inset: -20%;
+  background-color: #03183f;
+  background-size: 100% auto;
+  background-repeat: repeat-y;
+  animation: why-drift 14s linear infinite;
+}
+.why-ocean-mb::after {
+  content: ""; position: absolute; inset: 0;
+  background: radial-gradient(60% 40% at 50% 45%, #0a4a9a55, transparent 70%);
+}
+@keyframes why-drift { to { background-position: 0 100vh; } }
+.why-wake-mb {
+  position: absolute; left: 50%; top: 88%;
+  width: 600%; height: 140%; max-width: none;
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+
+/* ship — bow up, centred */
+.why-ship {
+  position: absolute; left: 50%; top: 50%;
+  height: 64vh; aspect-ratio: 1 / 5;
+  margin: -32vh 0 0 calc(-64vh / 10);
+  will-change: transform;
+}
+.why-ship-inner { width: 100%; height: 100%; filter: drop-shadow(1.2rem 2rem 1.6rem #00081ecc); }
+.why-ship-inner svg { width: 100%; height: 100%; display: block; }
+
+.why-caption {
+  position: absolute; left: var(--container-pad); bottom: 4rem; z-index: 3;
+  display: grid; gap: .6rem;
+  padding: 1.2rem 1.6rem; border-radius: .8rem;
+  background: #ffffff14; border: 1px solid #ffffff24; backdrop-filter: blur(8px);
+}
+.why-caption p { display: flex; align-items: center; gap: .8rem; }
+.why-caption .dot { width: .6rem; height: .6rem; animation: pulse 1.6s var(--ease-silk) infinite; }
+.why-caption-sub { color: #ffffffa6; }
+.why-stage-title {
+  position: absolute; z-index: 3;
+  left: var(--container-pad); top: calc(var(--header-h) + 5vh);
+  max-width: 60rem;
+  color: #fff;
+}
+
+/* clouds */
+.why-clouds { position: absolute; inset: 0; z-index: 4; pointer-events: none; }
+.why-cloud-bg {
+  position: absolute; inset: 0;
+  background: linear-gradient(180deg, #eef3ff 0%, #ffffff 55%, #ffffff 100%);
+  opacity: 0;
+}
+.why-cloud {
+  position: absolute;
+  opacity: 0;
+  backface-visibility: hidden;
+}
+.why-cloud img { width: 100%; height: 100%; display: block; }
+
+/* ---------------- main content over the cloud wall ---------------- */
+.why-main {
+  position: relative;
+  color: var(--content-main);
+  background: linear-gradient(180deg, #ffffff 0%, #ffffff 30%, #eef3ff 100%);
+  padding: 4rem 0 18rem;
+  margin-top: -1px;
+}
+.why-head { display: grid; gap: 2.4rem; justify-items: center; text-align: center; padding-bottom: 12rem; }
+.why-title { will-change: transform, filter; }
+.why-list { display: grid; gap: 10rem; }
+.why-item {
+  width: 44%;
+  display: grid; gap: 1.6rem;
+}
+.why-item:nth-child(even) { margin-left: auto; }
+.why-item:last-child { margin-inline: auto; text-align: center; justify-items: center; }
+.why-item-ic {
+  width: 6.4rem; height: 6.4rem; border-radius: 50%;
+  display: grid; place-items: center;
+  background: #fff; color: var(--brand);
+  box-shadow: 0 1.6rem 4rem -2rem #0016cb66;
+  border: 1px solid #0016cb1f;
+}
+.why-item-ic svg { width: 2.8rem; height: 2.8rem; }
+.why-item-desc { max-width: 46rem; }
+
+@media (max-width: 767px) {
+  .why-scroll { height: 380vh; }
+  .why-ocean { display: none; }
+  .why-ocean-mb { display: block; }
+  .why-ship { height: 56vh; margin: -28vh 0 0 calc(-56vh / 10); }
+  .why-stage-title { font-size: 2.8rem; }
+  .why-caption { bottom: 2.4rem; right: var(--container-pad); }
+  .why-head { padding-bottom: 6rem; }
+  .why-list { gap: 6rem; }
+  .why-item, .why-item:last-child { width: 100%; margin: 0; text-align: left; justify-items: start; }
+}
+.why-clouds::after {
+  content: ""; position: absolute; left: 0; right: 0; bottom: 0; height: 35%;
+  background: linear-gradient(180deg, #ffffff00, #ffffff);
+  opacity: var(--fade, 0);
+}

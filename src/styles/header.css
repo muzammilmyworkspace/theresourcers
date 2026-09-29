@@ -1,0 +1,153 @@
+/* ==========================================================
+   Header
+   ========================================================== */
+.header {
+  position: fixed; left: 0; right: 0; top: 0; z-index: 500;
+  color: var(--content-main);
+  transition: transform .5s var(--ease-silk), opacity .35s var(--ease-silk);
+}
+.header.on-loader { opacity: 0; }
+.header.on-hide { transform: translateY(-101%); pointer-events: none; }
+
+.header-inner {
+  position: relative;
+  height: var(--header-h);
+  display: flex; align-items: center; justify-content: space-between; gap: 3.2rem;
+  transition: background-color .4s var(--ease-silk), color .4s var(--ease-silk), border-color .4s var(--ease-silk);
+  border-bottom: 1px solid transparent;
+}
+.header.on-scroll .header-inner {
+  background: #fff; color: var(--black);
+  border-bottom-color: var(--border-light);
+}
+.header.on-dark:not(.on-scroll) { color: #fff; }
+.header.on-dark.on-scroll .header-inner { background: #111111e6; color: #fff; border-bottom-color: #ffffff14; backdrop-filter: blur(12px); }
+.header.is-open .header-inner { background: transparent !important; color: #fff !important; border-bottom-color: transparent !important; backdrop-filter: none !important; }
+
+/* ---- logo: full wordmark collapses to mark on scroll ---- */
+.header-logo {
+  position: relative; z-index: 2;
+  display: grid;
+  grid-template-columns: 0fr 1fr;
+  align-items: center;
+  font-family: var(--font-heading); font-weight: 700;
+  font-size: 2rem; letter-spacing: .14em; line-height: 1;
+  white-space: nowrap;
+  transition: grid-template-columns .5s var(--ease-silk) .3s;
+}
+.header-logo > span { overflow: hidden; min-width: 0; }
+.header-logo .logo-mark {
+  display: inline-grid; place-items: center;
+  width: 4rem; height: 4rem; border-radius: 50%;
+  background: currentColor;
+}
+.header-logo .logo-mark b { color: #fff; font-size: 1.4rem; letter-spacing: .04em; }
+.header.on-dark:not(.on-scroll) .logo-mark b,
+.header.is-open .logo-mark b,
+.header.on-dark.on-scroll .logo-mark b { color: #111; }
+.header-logo .logo-full { opacity: 1; transition: opacity .35s var(--ease-silk) .3s; }
+.header.on-scroll:not(.is-open) .header-logo { grid-template-columns: 1fr 0fr; }
+.header.on-scroll:not(.is-open) .header-logo .logo-full { opacity: 0; }
+
+/* ---- news ticker ---- */
+.header-news {
+  display: flex; align-items: center; gap: 1.2rem;
+  flex: 0 1 52rem; min-width: 0;
+  transition: opacity .35s var(--ease-silk);
+}
+.header-news-label { color: var(--accent); flex: none; }
+.news-list { position: relative; height: 2.08rem; flex: 1; min-width: 0; overflow: hidden; }
+.news-item {
+  position: absolute; inset: 0;
+  display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  font-size: 1.4rem; line-height: 2.08rem;
+  transform: translateY(100%);
+  transition: transform .45s var(--ease-silk);
+}
+.news-item.active { transform: translateY(0); }
+.news-item.de-active { transform: translateY(-100%); }
+.news-item.no-trans { transition: none; }
+.header.is-open .header-news { opacity: 0; pointer-events: none; }
+
+/* ---- right side ---- */
+.header-right { position: relative; z-index: 2; display: flex; align-items: center; gap: 2.4rem; }
+.header-track { display: inline-flex; align-items: center; gap: .8rem; }
+.header-track .dot { width: .6rem; height: .6rem; animation: pulse 1.6s var(--ease-silk) infinite; }
+@keyframes pulse { 50% { opacity: .25; } }
+.header .btn { height: 4.4rem; }
+.header.on-scroll .btn-solid { background: var(--black); }
+.header.on-dark .btn-solid, .header.is-open .btn-solid { background: #fff; color: #111; }
+@media (hover: hover) {
+  .header .btn-solid:hover { color: #fff; }
+}
+
+/* ---- menu toggle (dots → hexagon) ---- */
+.menu-toggle {
+  position: relative; width: 4.4rem; height: 4.4rem;
+  border-radius: 50%;
+  border: 1px solid var(--border-main);
+  color: inherit;
+  transition: border-color .4s var(--ease-silk);
+}
+.header.on-dark .menu-toggle, .header.is-open .menu-toggle { border-color: #ffffff29; }
+.menu-dots { position: absolute; inset: 0; }
+.menu-dot {
+  position: absolute; left: 50%; top: 50%;
+  width: .6rem; height: .6rem; margin: -.3rem 0 0 -.3rem;
+  border-radius: 50%; background: currentColor;
+}
+
+/* ---- dropdown ---- */
+.header-dropdown {
+  position: fixed; left: 0; right: 0; top: 0; z-index: 1;
+  min-height: 100svh;
+  color: #fff;
+  visibility: hidden;
+  pointer-events: none;
+}
+.header.is-open .header-dropdown { visibility: visible; pointer-events: auto; }
+.header-dropdown-bg {
+  position: absolute; inset: 0; background: #111;
+  clip-path: inset(0 0 100% 0);
+}
+.header-dropdown-body {
+  position: relative;
+  min-height: 100svh;
+  padding-top: calc(var(--header-h) + 4rem);
+  padding-bottom: 4rem;
+  display: flex; flex-direction: column; justify-content: space-between; gap: 4rem;
+}
+.header-dropdown-line { height: 1px; background: #ffffff29; transform-origin: left; }
+.dd-links { display: grid; gap: .4rem; }
+.dd-link { display: flex; align-items: baseline; gap: 2rem; overflow: hidden; }
+.dd-link-inner {
+  display: flex; align-items: baseline; gap: 2rem;
+  transition: color .4s var(--ease-silk);
+}
+.dd-link-num { color: #ffffff52; width: 4rem; }
+.dd-link-txt { font-family: var(--font-heading); font-weight: 500; font-size: 7.2rem; line-height: 1.05; letter-spacing: -.03em; }
+@media (hover: hover) {
+  .dd-links:hover .dd-link-inner { color: #ffffff52; }
+  .dd-links .dd-link:hover .dd-link-inner { color: #fff; }
+  .dd-link:hover .dd-link-num { color: var(--accent); }
+}
+.dd-bottom { display: flex; justify-content: space-between; align-items: flex-end; gap: 3.2rem; flex-wrap: wrap; }
+.dd-bottom-col { display: grid; gap: 1rem; }
+.dd-bottom .overflow { overflow: hidden; }
+.dd-bottom .dd-anim { display: block; }
+.dd-bottom .dd-anim.btn { display: inline-flex; }
+.dd-label { color: #ffffff52; }
+.dd-big-link { font-size: 2.4rem; font-family: var(--font-heading); }
+
+@media (max-width: 991px) {
+  .header-news { display: none; }
+  .dd-link-txt { font-size: 5.6rem; }
+}
+@media (max-width: 767px) {
+  .header-track, .header .btn { display: none; }
+  .header-logo { font-size: 1.6rem; }
+  .header-logo .logo-mark { width: 3.4rem; height: 3.4rem; }
+  .menu-toggle { width: 4rem; height: 4rem; }
+  .dd-link-txt { font-size: 4rem; }
+  .dd-link-num { width: 3rem; }
+}

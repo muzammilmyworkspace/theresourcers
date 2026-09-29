@@ -1,0 +1,165 @@
+/* ==========================================================
+   SERVICES — crane → truck → road scroll story
+   ========================================================== */
+.home-service { position: relative; background: #0c0c0c; }
+.svc-scroll { position: relative; height: 1000vh; }
+.svc-stage {
+  position: sticky; top: 0;
+  height: 100vh; height: 100svh;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.svc-sky {
+  position: absolute; inset: 0; z-index: 0;
+  background: linear-gradient(180deg, #d6e1ff 0%, #eef2fb 52%, #ffe4d3 100%);
+}
+.svc-scene { position: absolute; inset: 0; z-index: 1; }
+.svc-svg { width: 100%; height: 100%; display: block; }
+
+/* chapter 1 heading */
+.svc-head {
+  position: absolute; z-index: 3;
+  left: var(--container-pad); top: calc(var(--header-h) + 5vh);
+  width: min(62rem, 44vw);
+  display: grid; gap: 2.4rem;
+}
+.svc-head-desc { max-width: 46rem; }
+
+/* giant outline wordmark behind the cards */
+.svc-wordmark {
+  position: absolute; z-index: 2;
+  left: 0; top: calc(var(--header-h) + 4vh);
+  width: 300vh; opacity: 0;
+  pointer-events: none;
+}
+.svc-wordmark svg { width: 100%; height: auto; overflow: visible; }
+
+/* horizontal cards */
+.svc-track {
+  position: absolute; z-index: 4;
+  left: 0; top: calc(var(--header-h) + 8vh);
+  display: flex; gap: 2rem;
+  padding-right: var(--container-pad);
+  will-change: transform;
+  visibility: hidden;
+}
+.svc-card {
+  flex: none;
+  width: 38rem; min-height: 40vh;
+  padding: 3.2rem;
+  display: flex; flex-direction: column; gap: 2rem;
+  background: #ffffffe0;
+  border: 1px solid #ffffff;
+  border-radius: 1.6rem;
+  box-shadow: 0 2rem 6rem -3rem #0016cb40;
+  backdrop-filter: blur(10px);
+  opacity: 0; transform: translateY(4rem);
+  transition: opacity .8s var(--ease-silk), transform 1s var(--ease-out-expo);
+}
+.svc-card.is-in { opacity: 1; transform: none; }
+.svc-card-num { color: var(--brand); }
+.svc-card-title { line-height: 1.05; }
+.svc-card-desc { flex: 1; }
+.svc-card-link { align-self: flex-start; color: var(--content-main); }
+
+/* darkness for chapter 3 */
+.svc-dark { position: absolute; inset: 0; z-index: 5; background: #0c0c0c; opacity: 0; pointer-events: none; }
+
+/* top-down road + truck */
+.svc-topdown {
+  position: absolute; z-index: 6;
+  left: 0; top: 0; bottom: 0; width: 42%;
+  opacity: 0; pointer-events: none;
+}
+.svc-top-road {
+  position: absolute; top: -10%; bottom: -10%;
+  left: 50%; width: 22rem; margin-left: -11rem;
+  background:
+    linear-gradient(90deg, #d3d9e6 0 .5rem, transparent .5rem calc(100% - .5rem), #d3d9e6 calc(100% - .5rem)),
+    repeating-linear-gradient(180deg, #f4f4f4 0 6rem, transparent 6rem 11rem) center / .6rem 11rem repeat-y,
+    #24252b;
+  background-position: 0 0, 50% var(--dash, 0px), 0 0;
+}
+.svc-top-truck {
+  position: absolute; left: 50%; top: 50%;
+  width: 10rem; margin: -17.5rem 0 0 -5rem;
+  filter: drop-shadow(0 2rem 2rem #0008);
+}
+.svc-top-truck svg { width: 100%; height: auto; overflow: visible; }
+
+/* sub services */
+.svc-sub {
+  position: absolute; z-index: 7;
+  right: var(--container-pad); top: 0; bottom: 0;
+  width: 52%;
+  display: grid; grid-template-rows: auto 1fr;
+  padding-top: calc(var(--header-h) + 6vh);
+  color: #fff;
+  opacity: 0; pointer-events: none;
+}
+.svc-sub.is-live { pointer-events: auto; }
+.svc-sub-head { display: grid; gap: 2rem; padding-bottom: 4rem; }
+.svc-sub-list-wrap {
+  position: relative; overflow: hidden;
+  -webkit-mask-image: linear-gradient(180deg, transparent 0, #000 12%, #000 80%, transparent 100%);
+          mask-image: linear-gradient(180deg, transparent 0, #000 12%, #000 80%, transparent 100%);
+}
+.svc-sub-list { will-change: transform; }
+.svc-sub-item {
+  display: grid; grid-template-columns: 6rem 1fr; gap: 2rem;
+  padding: 3.2rem 0;
+  border-top: 1px solid #ffffff29;
+  opacity: .28;
+  transition: opacity .5s var(--ease-silk);
+}
+.svc-sub-item.is-active { opacity: 1; }
+.svc-sub-item.is-active .svc-sub-num { color: var(--accent); }
+.svc-sub-num { color: #ffffff80; padding-top: .6rem; transition: color .4s; }
+.svc-sub-desc { color: #ffffffb3; margin-top: 1rem; max-width: 52rem; }
+
+/* speedometer */
+.svc-speed {
+  position: absolute; z-index: 9;
+  left: var(--container-pad); bottom: 4rem;
+  overflow: hidden;
+  mix-blend-mode: difference;
+  color: #fff;
+  pointer-events: none;
+}
+.svc-speed-inner {
+  display: flex; align-items: baseline; gap: .8rem;
+  transform: translateY(100%);
+  transition: transform .35s var(--ease-silk);
+}
+.svc-speed.active .svc-speed-inner { transform: none; }
+.svc-speed-num { font-size: 4.8rem; line-height: 1; letter-spacing: -.02em; font-variant-numeric: tabular-nums; min-width: 2ch; }
+.svc-speed-unit { font-size: 1.2rem; }
+
+.svc-mobile { display: none; }
+
+/* ---------------- tablet ---------------- */
+@media (max-width: 991px) {
+  .svc-head { width: 60vw; }
+  .svc-card { width: 34rem; }
+  .svc-sub { width: 56%; }
+  .svc-topdown { width: 38%; }
+}
+
+/* ---------------- mobile: crane story only, content stacks below ---------------- */
+@media (max-width: 767px) {
+  .svc-scroll { height: 420vh; }
+  .svc-head { width: auto; right: var(--container-pad); top: calc(var(--header-h) + 3rem); gap: 1.6rem; }
+  .svc-scene { top: auto; height: 62svh; }
+  .svc-track, .svc-wordmark, .svc-dark, .svc-topdown, .svc-sub, .svc-speed { display: none; }
+
+  .svc-mobile { display: block; padding: 8rem var(--container-pad) 10rem; background: #0c0c0c; color: #fff; }
+  .svc-mobile .svc-track { display: grid; position: static; visibility: visible; gap: 1.6rem; padding: 0; transform: none !important; }
+  .svc-mobile .svc-card { width: auto; min-height: 0; background: #1a1a1a; border-color: #ffffff14; color: #fff; box-shadow: none; }
+  .svc-mobile .svc-card-desc { color: #ffffffb3; }
+  .svc-mobile .svc-card-link { color: #fff; }
+  .svc-mobile .svc-card-num { color: var(--accent); }
+  .svc-mobile .svc-sub { display: block; position: static; width: auto; opacity: 1; padding-top: 10rem; pointer-events: auto; }
+  .svc-mobile .svc-sub-list-wrap { -webkit-mask-image: none; mask-image: none; }
+  .svc-mobile .svc-sub-item { opacity: 1; grid-template-columns: 4rem 1fr; }
+}
