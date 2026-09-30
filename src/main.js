@@ -24,6 +24,7 @@ import { initTextScramble } from './core/textScramble.js';
 import { initWaves } from './core/waves.js';
 import { initSky } from './core/sky.js';
 import { initQuoteForms } from './core/quoteForm.js';
+import { initContactModal } from './core/contactModal.js';
 import { Hero } from './sections/Hero.js';
 import { Intro } from './sections/Intro.js';
 import { Service } from './sections/Service.js';
@@ -128,6 +129,7 @@ async function boot() {
   smooth.init();
   cursor.init();
   header.init();
+  initContactModal();
   initTextScramble(document.querySelector('.header'));
   new Footer().init();
   initWaves(document.querySelector('.footer'));

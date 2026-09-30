@@ -84,17 +84,8 @@ export class Footer {
       const off = document.createElement('canvas');
       off.width = W; off.height = H;
       const o = off.getContext('2d');
-      const cs = getComputedStyle(logo);
-      o.font = `${cs.fontWeight} ${parseFloat(cs.fontSize) * dpr}px ${cs.fontFamily}`;
-      o.textAlign = 'center';
-      o.textBaseline = 'alphabetic';
-      const g = o.createLinearGradient(0, 0, W, 0);
-      g.addColorStop(0, '#ffffff'); g.addColorStop(0.55, '#c9d3ff'); g.addColorStop(1, '#ff7a33');
-      o.fillStyle = g;
-      if ('letterSpacing' in o) o.letterSpacing = cs.letterSpacing === 'normal' ? '0px' : `${parseFloat(cs.letterSpacing) * dpr}px`;
-      const baseline = (lr.top - r.top + lr.height * 0.86) * dpr;
-      const cx = (lr.left + lr.width / 2 - r.left) * dpr;
-      o.fillText(logo.textContent, cx, baseline);
+      if (!logo.complete || !logo.naturalWidth) { logo.addEventListener('load', build, { once: true }); return; }
+      o.drawImage(logo, (lr.left - r.left) * dpr, (lr.top - r.top) * dpr, lr.width * dpr, lr.height * dpr);
       const data = o.getImageData(0, 0, W, H).data;
       const step = Math.round(4 * dpr);
       P = [];

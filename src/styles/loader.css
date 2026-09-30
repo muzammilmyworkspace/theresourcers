@@ -114,3 +114,7 @@
 .loader.is-short .loader-inner { background: transparent; }
 .loader.is-short .loader-page { z-index: 2; }
 .loader.is-full .bg-masks { display: none; }
+
+.loader-logo img { display: block; height: 9rem; width: auto; filter: drop-shadow(0 1rem 3rem #0016cb55); }
+.loader-page-logo img { display: block; height: 10rem; width: auto; }
+@media (max-width: 767px) { .loader-logo img { height: 7rem; } .loader-page-logo img { height: 8rem; } }

@@ -354,3 +354,46 @@
   .footer-bot { flex-direction: column; }
 }
 
+
+/* footer lockup (image; the particle canvas samples it) */
+img.footer-logo { display: block; width: min(92%, 150rem); height: auto; margin: 0 auto; font-size: 0; }
+
+/* floating "Contact us" + popup */
+.contact-float {
+  position: fixed; right: 2.4rem; bottom: 10rem; z-index: 900;
+  display: inline-flex; align-items: center; gap: 1rem; height: 5.4rem; padding: 0 2.2rem 0 1.8rem; border-radius: 99px;
+  background: #ff5500; color: #fff; font-family: var(--font-heading); font-weight: 700; font-size: 1.5rem; letter-spacing: .02em;
+  box-shadow: 0 1.2rem 3rem -.8rem #ff550099, 0 .4rem 1.2rem #0003; cursor: pointer;
+  transition: transform .35s var(--ease-silk), background .3s;
+}
+.contact-float svg { width: 2.2rem; height: 2.2rem; }
+.contact-float:hover { transform: translateY(-3px); background: #0016cb; }
+.cmodal { position: fixed; inset: 0; z-index: 1200; display: grid; place-items: center; padding: 2rem; }
+.cmodal[hidden] { display: none; }
+.cmodal-backdrop { position: absolute; inset: 0; background: #05060cc7; backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); opacity: 0; transition: opacity .4s var(--ease-silk); }
+.cmodal-panel {
+  position: relative; width: min(100%, 58rem); max-height: calc(100vh - 4rem); overflow: auto; overscroll-behavior: contain;
+  padding: 4rem; border-radius: 2.4rem; color: #fff;
+  background: radial-gradient(120% 80% at 100% 0%, #0016cb55, transparent 60%), #0c0d14; border: 1px solid #ffffff1f;
+  box-shadow: 0 4rem 10rem -2rem #000; opacity: 0; transform: translateY(3rem) scale(.97);
+  transition: opacity .45s var(--ease-silk), transform .55s var(--ease-silk);
+}
+.cmodal.is-open .cmodal-backdrop { opacity: 1; }
+.cmodal.is-open .cmodal-panel { opacity: 1; transform: none; }
+.cmodal-head { display: flex; align-items: center; gap: 1.6rem; padding-right: 4rem; }
+.cmodal-mark { width: 5.6rem; height: auto; flex: none; }
+.cmodal-head .label { color: #ff7a33; margin-bottom: .6rem; }
+.cmodal-title { font-size: 3rem; line-height: 1.05; }
+.cmodal-desc { color: #ffffffb3; margin: 1.6rem 0 2.4rem; }
+.cmodal-form { padding: 0; background: none; border: 0; box-shadow: none; backdrop-filter: none; -webkit-backdrop-filter: none; }
+.cmodal-close { position: absolute; right: 2rem; top: 2rem; width: 4.4rem; height: 4.4rem; border-radius: 50%; background: #ffffff14; cursor: pointer; transition: background .3s, transform .4s var(--ease-silk); }
+.cmodal-close:hover { background: #ff5500; transform: rotate(90deg); }
+.cmodal-close span { position: absolute; left: 50%; top: 50%; width: 1.8rem; height: 2px; margin: -1px 0 0 -.9rem; background: #fff; transform: rotate(45deg); }
+.cmodal-close span + span { transform: rotate(-45deg); }
+@media (max-width: 767px) {
+  .contact-float { right: 1.6rem; bottom: 8.4rem; height: 4.8rem; padding: 0 1.8rem 0 1.5rem; font-size: 1.35rem; }
+  .cmodal { padding: 1.2rem; align-items: end; }
+  .cmodal-panel { padding: 2.8rem 2.2rem; border-radius: 2rem; }
+  .cmodal-title { font-size: 2.4rem; }
+  .cmodal-mark { width: 4.4rem; }
+}

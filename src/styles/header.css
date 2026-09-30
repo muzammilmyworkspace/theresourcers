@@ -254,3 +254,11 @@
 @media (max-width: 991px) {
   .header.on-scroll .header-nav, .header-nav { display: none !important; }
 }
+
+/* ---- brand lockup ---- */
+.header-logo, .header.on-scroll:not(.is-open) .header-logo { display: flex; align-items: center; position: relative; }
+.header-logo .logo-img { display: block; height: 5.6rem; width: auto; transition: opacity .35s var(--ease-silk); }
+.header-logo .logo-light { position: absolute; left: 0; top: 50%; translate: 0 -50%; opacity: 0; }
+.header.on-dark .header-logo .logo-light, .header.is-open .header-logo .logo-light { opacity: 1; }
+.header.on-dark .header-logo .logo-dark, .header.is-open .header-logo .logo-dark { opacity: 0; }
+@media (max-width: 767px) { .header-logo .logo-img { height: 3.8rem; } }

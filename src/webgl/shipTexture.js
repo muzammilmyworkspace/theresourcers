@@ -38,14 +38,14 @@ function drawBox(ctx, x, y, w, h, color, logo) {
   ctx.fillStyle = '#e9b949';
   [[x + 2, y + 2], [x + w - 7, y + 2], [x + 2, y + h - 7], [x + w - 7, y + h - 7]].forEach(([cx, cy]) => ctx.fillRect(cx, cy, 5, 5));
   if (logo) {
+    // the blue mark, painted across the roof like the truck's container
+    const s = Math.min(w * 0.86, h * 0.8);
+    const k = s / Math.max(logo.width, logo.height);
     ctx.save();
     ctx.translate(x + w / 2, y + h / 2);
-    ctx.rotate(-Math.PI / 2);
-    ctx.fillStyle = '#111';
-    ctx.font = `800 ${Math.round(w * 0.36)}px Saira, Arial`;
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.fillText('THE SOURCERS', 0, 0, h * 0.86);
+    ctx.rotate(Math.PI / 2);
+    ctx.globalAlpha = 0.97;
+    ctx.drawImage(logo, (-logo.width * k) / 2, (-logo.height * k) / 2, logo.width * k, logo.height * k);
     ctx.restore();
   }
 }
@@ -55,8 +55,11 @@ export function buildShipCanvas() {
   if (cached) return cached;
   cached = new Promise((resolve) => {
     const img = new Image();
+    const mark = new Image();
+    const markReady = new Promise((r) => { mark.onload = r; mark.onerror = r; });
+    mark.src = '/img/brand/mark.png';
     img.onload = async () => {
-      try { await document.fonts.load('700 20px Saira'); } catch { /* fallback font */ }
+      await markReady;
       const c = document.createElement('canvas');
       c.width = deck.w * SCALE;
       c.height = deck.h * SCALE;
@@ -66,13 +69,14 @@ export function buildShipCanvas() {
       // deck shadow under the stacks
       let i = 0;
       for (const [a, b, y0, y1, c0] of deck.cells) {
-        // the column the truck drives onto carries the same light-grey boxes as the truck
-        const col = Math.abs(a - HANDOFF_COL.x0) <= 2 ? '#d7d9dc' : c0;
+        // the column the truck drives onto carries the same orange branded boxes as the truck
+        const hand = Math.abs(a - HANDOFF_COL.x0) <= 2;
+        const brand = hand || (isLight(c0) && (y1 - y0) * SCALE > 110 && i++ % 2 === 0);
+        const col = brand ? '#f05a18' : c0;
         const x = a * SCALE, y = y0 * SCALE, w = (b - a) * SCALE, h = (y1 - y0) * SCALE;
         ctx.fillStyle = 'rgba(0,0,0,.35)';
         ctx.fillRect(x + 3, y + 4, w, h);
-        const logo = Math.abs(a - HANDOFF_COL.x0) <= 2 ? h > 110 : isLight(col) && h > 110 && i++ % 2 === 0;
-        drawBox(ctx, x, y, w, h, col, logo);
+        drawBox(ctx, x, y, w, h, col, brand && mark.naturalWidth && h > w * 0.9 ? mark : null);
       }
       resolve(c);
     };

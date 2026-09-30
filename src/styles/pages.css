@@ -179,3 +179,5 @@
   .pg-form { padding: 2.4rem; }
   .pg-form-grid { grid-template-columns: 1fr; }
 }
+
+.trans-logo img { display: block; height: 8rem; width: auto; }

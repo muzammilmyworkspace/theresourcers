@@ -51,7 +51,7 @@ export function topShip() {
     <rect x="18" y="790" width="164" height="18" rx="3" fill="#e2e5ec"/>
     <rect x="40" y="820" width="120" height="6" fill="#1b1b1f" opacity=".6"/>
     <rect x="40" y="834" width="120" height="4" fill="#1b1b1f" opacity=".25"/>
-    <text x="100" y="853" text-anchor="middle" font-family="Space Grotesk, Arial" font-weight="700" font-size="11" letter-spacing="3" fill="#0016cb">THE SOURCERS</text>
+    <image href="/img/brand/mark.png" x="88" y="838" width="24" height="22"/>
     <!-- funnel -->
     <rect x="80" y="880" width="40" height="44" rx="6" fill="#ff5500"/>
     <rect x="86" y="888" width="28" height="10" rx="3" fill="#1b1b1f"/>

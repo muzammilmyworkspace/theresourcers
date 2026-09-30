@@ -55,7 +55,6 @@ export class Service {
       return w;
     });
 
-    this.brandTopTruck();
     const imgs = $$('img', q('.svc-scene'));
     Promise.all(imgs.map((i) => (i.complete ? 0 : new Promise((r) => { i.onload = r; i.onerror = r; })))).then(() => {
       if (this.dead) return;
