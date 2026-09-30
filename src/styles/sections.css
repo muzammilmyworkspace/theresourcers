@@ -165,7 +165,7 @@
    ========================================================== */
 .home-cta {
   position: relative; overflow: hidden;
-  padding: 22rem 0;
+  padding: 16rem 0;
   background: radial-gradient(50% 60% at 50% 55%, #0016cb55 0%, transparent 70%), #0c0c0c;
   color: #fff; text-align: center;
 }
@@ -187,10 +187,88 @@
   70% { opacity: .35; }
   100% { transform: scale(2.4); opacity: 0; }
 }
-.cta-inner { position: relative; display: grid; justify-items: center; gap: 3.2rem; }
-.cta-title { max-width: 12ch; }
-.cta-desc { max-width: 56rem; color: #ffffffb3; }
-.cta-btn { height: 6.4rem; padding: 0 4rem; font-size: 1.4rem; }
+.cta-inner {
+  position: relative; text-align: left;
+  display: grid; grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr); gap: 8rem; align-items: center;
+}
+.cta-copy { display: grid; gap: 2.8rem; justify-items: start; }
+.cta-title { font-size: 6.4rem; line-height: .95; max-width: 13ch; }
+.cta-desc { max-width: 52rem; color: #ffffffb3; }
+.cta-points { display: grid; gap: 1rem; font-size: 1.5rem; color: #ffffffd9; }
+.cta-points li { display: flex; align-items: center; gap: 1rem; }
+.cta-points .dot { width: .7rem; height: .7rem; background: #25d366; }
+.cta-direct { display: flex; flex-wrap: wrap; gap: 1.2rem; margin-top: .8rem; }
+.cta-direct-link {
+  display: flex; align-items: center; gap: 1.2rem; padding: 1.2rem 1.8rem 1.2rem 1.2rem;
+  border: 1px solid #ffffff29; border-radius: 1.2rem; background: #ffffff0a;
+  transition: border-color .3s, background-color .3s;
+}
+.cta-direct-link:hover { border-color: #ffffff66; background: #ffffff14; }
+.cta-direct-link strong { display: block; font-size: 1.4rem; }
+.cta-direct-link small { display: block; font-size: 1.25rem; color: #ffffffa6; }
+.cta-direct-ic { width: 4.4rem; height: 4.4rem; border-radius: 50%; display: grid; place-items: center; background: #ffffff1a; color: #fff; flex: none; }
+.cta-direct-ic.wa { background: #25d366; }
+.cta-direct-ic svg { width: 2.2rem; height: 2.2rem; }
+
+/* quote form on dark */
+.cta-form {
+  position: relative; display: grid; gap: 1.6rem;
+  padding: 4rem; border-radius: 2rem;
+  background: linear-gradient(160deg, #ffffff14, #ffffff06); border: 1px solid #ffffff24;
+  backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+  box-shadow: 0 3rem 8rem -3rem #000c;
+}
+.cta-form-title { font-size: 2.6rem; margin-bottom: .4rem; }
+.cta-form .field input, .cta-form .field textarea { color: #fff; border-bottom-color: #ffffff40; }
+.cta-form .field > span { color: #ffffff99; }
+.cta-form .field input:focus, .cta-form .field textarea:focus { border-color: #fff; }
+.cta-form .field input:focus + span, .cta-form .field input:not(:placeholder-shown) + span,
+.cta-form .field textarea:focus + span, .cta-form .field textarea:not(:placeholder-shown) + span { color: #fff; }
+.cta-form .field textarea { min-height: 8rem; }
+.cta-form-submit { justify-self: stretch; height: 5.6rem; margin-top: .8rem; }
+.form-status { font-size: 1.3rem; min-height: 0; }
+.form-status.is-error { color: #ffb4a8; }
+.form-status a { text-decoration: underline; }
+.form-success {
+  position: absolute; inset: 0; border-radius: inherit; display: grid; place-content: center; justify-items: center; gap: 1.4rem; text-align: center;
+  background: #0016cb; color: #fff; padding: 3rem; opacity: 0; visibility: hidden;
+}
+.form-success .heading { font-size: 2.8rem; }
+.form-success .txt { color: #ffffffcc; }
+.form-check { width: 6.4rem; height: 6.4rem; border-radius: 50%; display: grid; place-items: center; background: #fff; color: #0016cb; font-size: 2.8rem; }
+
+/* floating WhatsApp */
+.wa-float {
+  position: fixed; right: 2.4rem; bottom: 2.4rem; z-index: 900;
+  width: 6rem; height: 6rem; border-radius: 50%; display: grid; place-items: center;
+  background: #25d366; color: #fff;
+  box-shadow: 0 1.2rem 3rem -.8rem #25d36699, 0 .4rem 1.2rem #0003;
+  transition: transform .35s var(--ease-silk);
+}
+.wa-float::before {
+  content: ""; position: absolute; inset: 0; border-radius: 50%; background: #25d366;
+  animation: wa-pulse 2.4s ease-out infinite; z-index: -1;
+}
+@keyframes wa-pulse { 0% { transform: scale(1); opacity: .55; } 100% { transform: scale(1.7); opacity: 0; } }
+.wa-float svg { width: 3.2rem; height: 3.2rem; }
+.wa-float:hover { transform: scale(1.08); }
+.wa-float-tip {
+  position: absolute; right: calc(100% + 1.2rem); top: 50%; translate: 0 -50%;
+  padding: .8rem 1.2rem; border-radius: .8rem; background: #111; color: #fff;
+  font-family: var(--font-mono); font-size: 1.15rem; text-transform: uppercase; white-space: nowrap;
+  opacity: 0; transform: translateX(.8rem); transition: opacity .3s, transform .3s; pointer-events: none;
+}
+.wa-float:hover .wa-float-tip { opacity: 1; transform: none; }
+@media (max-width: 991px) {
+  .cta-inner { grid-template-columns: 1fr; gap: 5rem; }
+}
+@media (max-width: 767px) {
+  .cta-title { font-size: 4rem; }
+  .cta-form { padding: 2.4rem; }
+  .wa-float { right: 1.6rem; bottom: 1.6rem; width: 5.4rem; height: 5.4rem; }
+  .wa-float-tip { display: none; }
+}
+@media (prefers-reduced-motion: reduce) { .wa-float::before { animation: none; } }
 
 /* ==========================================================
    FOOTER

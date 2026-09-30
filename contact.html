@@ -24,48 +24,49 @@
         <div class="container pg-contact-grid">
           <div class="pg-contact-info" data-reveal-group>
             <p class="label mono"><span class="label-line" data-reveal="line"></span><span data-reveal="fill">Contact</span></p>
-            <h1 class="heading h-xl" data-reveal="fill">Let’s move your<br />next order.</h1>
-            <p class="txt txt-l" data-reveal="fill">Tell us what you’re buying and where it needs to go. A real person replies within one business day.</p>
+            <h1 class="heading h-xl" data-reveal="fill">Get your free<br />sourcing quote.</h1>
+            <p class="txt txt-l" data-reveal="fill">Share your product, target quantity and destination. We come back with factory options, pricing and a DDP route, typically within 24 to 48 hours.</p>
             <dl class="pg-contact-list">
-              <div data-reveal="fade"><dt class="mono">Email</dt><dd><a class="link-line" href="mailto:hello@thesourcers.com">hello@thesourcers.com</a></dd></div>
+              <div data-reveal="fade"><dt class="mono">Email</dt><dd><a class="link-line" href="mailto:thesourcers.info@gmail.com">thesourcers.info@gmail.com</a></dd></div>
               <div data-reveal="fade"><dt class="mono">Head office</dt><dd>Futian District, Shenzhen<br />Guangdong, China</dd></div>
-              <div data-reveal="fade"><dt class="mono">Hours</dt><dd>Mon – Fri, 9:00 – 18:00 PKT</dd></div>
-              <div data-reveal="fade"><dt class="mono">Offices</dt><dd>Karachi · Shenzhen · Ho Chi Minh City</dd></div>
+              <div data-reveal="fade"><dt class="mono">WhatsApp</dt><dd><a class="link-line" href="https://wa.me/8618304560078" target="_blank" rel="noopener">+86 183 0456 0078</a></dd></div>
+              <div data-reveal="fade"><dt class="mono">Hours</dt><dd>Mon – Sat, 9:00 – 18:00 (China time)</dd></div>
             </dl>
           </div>
 
-          <form class="pg-form" novalidate data-reveal-group>
+          <form class="pg-form" data-quote-form novalidate data-reveal-group>
             <div class="pg-form-grid">
               <label class="field" data-reveal="fade"><input name="name" required autocomplete="name" placeholder=" " /><span>Full name *</span><em class="field-err">Please enter your name</em></label>
               <label class="field" data-reveal="fade"><input name="company" autocomplete="organization" placeholder=" " /><span>Company</span></label>
               <label class="field" data-reveal="fade"><input name="email" type="email" required autocomplete="email" placeholder=" " /><span>Email *</span><em class="field-err">Please enter a valid email</em></label>
-              <label class="field" data-reveal="fade"><input name="phone" type="tel" autocomplete="tel" placeholder=" " /><span>Phone</span></label>
+              <label class="field" data-reveal="fade"><input name="whatsapp" type="tel" autocomplete="tel" placeholder=" " /><span>WhatsApp / phone</span></label>
               <label class="field field-full" data-reveal="fade">
                 <select name="service" required>
                   <option value="" selected disabled hidden></option>
-                  <option>Product Sourcing</option><option>Quality Control</option><option>Ocean Freight</option>
-                  <option>Air Freight</option><option>Customs Brokerage</option><option>Warehousing &amp; Last Mile</option><option>Not sure yet</option>
+                  <option>Direct factory sourcing</option><option>Supplier management</option><option>Packaging &amp; branding</option>
+                  <option>Sampling &amp; quality inspection</option><option>DDP shipping &amp; logistics</option><option>Full workflow / not sure yet</option>
                 </select><span>What do you need? *</span><em class="field-err">Please choose a service</em>
               </label>
-              <label class="field field-full" data-reveal="fade"><textarea name="message" rows="5" required placeholder=" "></textarea><span>Product, quantities, origin and destination *</span><em class="field-err">Tell us a little about your order</em></label>
+              <label class="field field-full" data-reveal="fade"><textarea name="message" rows="5" required placeholder=" "></textarea><span>Product, target quantity and destination *</span><em class="field-err">Tell us a little about your order</em></label>
             </div>
             <div class="pg-form-foot" data-reveal="fade">
-              <p class="mono pg-form-note">We never share your details.</p>
-              <button class="btn btn-solid pg-form-submit" type="submit" data-cursor="link" data-cursor-text="Send">Send enquiry <span class="btn-dot"></span></button>
+              <p class="mono pg-form-note">100% free · No obligation · Confidential</p>
+              <button class="btn btn-solid pg-form-submit" type="submit" data-cursor="link" data-cursor-text="Send"><span class="btn-label">Get my free quote</span> <span class="btn-dot"></span></button>
             </div>
-            <div class="pg-form-success" aria-live="polite">
+            <p class="form-status" role="status"></p>
+            <div class="pg-form-success form-success" aria-live="polite">
               <span class="pg-form-check">✓</span>
               <h2 class="heading h-m">Thanks, we’ve got it.</h2>
-              <p class="txt">A member of our team will reply within one business day.</p>
+              <p class="txt">We’ll reply by email or WhatsApp within 24 to 48 hours.</p>
             </div>
           </form>
         </div>
       </section>
 
-<!--include:cta-->
     </main>
   </div>
 <!--include:footer-->
+<!--include:whatsapp-->
   <script type="module" src="/src/main.js"></script>
 </body>
 </html>

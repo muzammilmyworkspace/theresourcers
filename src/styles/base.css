@@ -155,4 +155,4 @@ ul, ol { list-style: none; }
 
 /* animated water lines behind sections */
 .waves-canvas { position: absolute; left: 0; right: 0; bottom: 0; width: 100%; pointer-events: none; z-index: 0; }
-[data-waves] > *:not(.waves-canvas) { position: relative; z-index: 1; }
+[data-waves] > *:not(.waves-canvas):not(.cta-circs) { position: relative; z-index: 1; }

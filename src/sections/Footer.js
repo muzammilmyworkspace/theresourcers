@@ -21,7 +21,9 @@ export function initCta(root = $('.home-cta')) {
       fill($('.cta-label span:last-child', root), { at: 0 }),
       fill($('.cta-title', root), { at: 0.1 }),
       fill($('.cta-desc', root), { at: 0.3 }),
-      fadeUp($('.cta-btn', root), { at: 0.5 }),
+      fadeUp($('.cta-points', root), { at: 0.45 }),
+      fadeUp($('.cta-direct', root), { at: 0.55 }),
+      fadeUp($('.cta-form', root), { y: 4, at: 0.2 }),
     ],
   });
 }

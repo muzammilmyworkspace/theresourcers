@@ -23,6 +23,7 @@ import { transition } from './core/transition.js';
 import { initTextScramble } from './core/textScramble.js';
 import { initWaves } from './core/waves.js';
 import { initSky } from './core/sky.js';
+import { initQuoteForms } from './core/quoteForm.js';
 import { Hero } from './sections/Hero.js';
 import { Intro } from './sections/Intro.js';
 import { Service } from './sections/Service.js';
@@ -66,6 +67,7 @@ function mount(container) {
   initTextScramble(container);
   initWaves(container);
   initSky(container);
+  initQuoteForms(container);
 }
 
 function unmount() {
