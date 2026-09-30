@@ -22,8 +22,10 @@ class Header {
     this.initTicker();
     this.initMenu();
 
-    smooth.on('scroll', this.onScroll);
-    window.addEventListener('scroll', this.onScroll, { passive: true });
+    this.queue = () => { if (!this.pending) { this.pending = true; requestAnimationFrame(() => { this.pending = false; this.onScroll(); }); } };
+    smooth.on('scroll', this.queue);
+    window.addEventListener('scroll', this.queue, { passive: true });
+    this.sections = [...document.querySelectorAll('[data-section]')];
     window.addEventListener('resize', () => (this.h = this.el.querySelector('.header-inner').offsetHeight));
     this.onScroll();
   }
@@ -48,7 +50,8 @@ class Header {
   updateMode() {
     const probe = this.h / 2;
     let mode = 'light';
-    for (const s of document.querySelectorAll('[data-section]')) {
+    if (!this.sections?.[0]?.isConnected) this.sections = [...document.querySelectorAll('[data-section]')];
+    for (const s of this.sections) {
       const r = s.getBoundingClientRect();
       // last match wins, so nested sections override their parent
       if (r.top <= probe && r.bottom > probe) mode = s.dataset.section;

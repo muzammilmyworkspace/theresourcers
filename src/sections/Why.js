@@ -108,7 +108,13 @@ export class Why {
     const tl = gsap.timeline({ defaults: { ease: 'none' }, onUpdate: () => this.ocean?.setHeight(this.cam.h) });
 
     // camera climbs from deck level to a high aerial
-    tl.to(this.cam, { h: 150, duration: 7, ease: 'cinematicSilk' }, 0);
+    // start zoom: ship is ~2.2× the road width above, so the handoff lines up
+    const h0 = () => {
+      const roadPx = window.innerWidth * 0.145, shipW = 11 * (255 / 1299);
+      return (shipW * window.innerHeight) / (2 * Math.tan((17.5 * Math.PI) / 180) * roadPx * 2.2);
+    };
+    this.cam.h = h0();
+    tl.fromTo(this.cam, { h: h0 }, { h: 150, duration: 7, ease: 'cinematicSilk' }, 0);
     if (mobile) tl.fromTo(q('.why-ship'), { scale: 1 }, { scale: 0.2, duration: 7, ease: 'cinematicSilk' }, 0)
       .fromTo(q('.why-ocean-mb-inner'), { scale: 4 }, { scale: 1, duration: 7, ease: 'cinematicSilk' }, 0);
 

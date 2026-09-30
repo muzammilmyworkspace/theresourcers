@@ -78,3 +78,5 @@
   .why-feats { grid-template-columns: 1fr; row-gap: 8vh; }
   .why-feat.is-left, .why-feat.is-right, .why-feat.is-center { justify-self: center; text-align: center; justify-items: center; grid-column: 1; }
 }
+
+.why-cloud-bg, .why-cloud-bg::after { background-attachment: fixed !important; }

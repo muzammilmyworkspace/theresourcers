@@ -105,21 +105,28 @@ export class Service {
       });
     });
 
-    // top-down road: comes in from the left, turns up at the centre, climbs the page
-    const roadW = L.vw * (this.mobile ? 0.36 : 0.13);
-    const H = L.vh * 3;
-    const cx = L.vw * 0.5, y0 = H - L.vh * 0.45, R = roadW * 1.25;
-    const d = `M ${-L.vw * 0.3} ${y0} L ${cx - R} ${y0} A ${R} ${R} 0 0 0 ${cx} ${y0 - R} L ${cx} ${-L.vh}`;
+    // top-down road: enters from the left, turns DOWN at the centre and runs off the
+    // bottom of the stage into the ship section (road centre = ship centre line)
+    const roadW = L.vw * (this.mobile ? 0.36 : 0.145);
+    const H = L.vh;
+    const cx = L.vw * 0.5;
+    const tw = roadW * 0.42, tl = tw * (1288 / 239);
+    const endY = H + tl * 0.18;                       // truck ends with its cab below the edge
+    // straight down the centre, like the reference
+    const d = `M ${cx} ${-tl * 0.6} L ${cx} ${endY}`;
+    const dRoad = `M ${cx} ${-400} L ${cx} ${H + 400}`;
     e.roadTop.style.height = `${H}px`;
-    e.roadTop.style.top = `${-(H - L.vh)}px`;
+    e.roadTop.style.top = '0px';
     e.roadSvg.setAttribute('viewBox', `0 0 ${L.vw} ${H}`);
-    [e.roadPath, e.roadDash].forEach((p) => p.setAttribute('d', d));
+    e.roadPath.setAttribute('d', dRoad);
+    e.roadDash.setAttribute('d', dRoad);
     e.roadPath.setAttribute('stroke-width', roadW);
-    const tw = roadW * 0.4;
-    gsap.set(e.truckTop, { width: tw, height: tw * (1288 / 239), xPercent: -50, yPercent: -50 });
-    this.raw = MotionPathPlugin.getRawPath(e.roadPath);
+    gsap.set(e.truckTop, { width: tw, height: tl, xPercent: -50, yPercent: -50 });
+    const tmp = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    tmp.setAttribute('d', d);
+    this.raw = MotionPathPlugin.getRawPath(tmp);
     MotionPathPlugin.cacheRawPathMeasurements(this.raw);
-    this.roadOffset = H - L.vh;
+    this.roadW = roadW;
   }
 
   build() {
@@ -159,9 +166,9 @@ export class Service {
         .fromTo(bigword, { x: 0 }, { x: () => -bigword.scrollWidth * 0.45, duration: 7.5, ease: 'none', immediateRender: false }, 8.3)
         .fromTo([track, bigword, q('.svc-band-btn'), band, e.world], { opacity: 1 }, { opacity: 0, duration: 0.8, ease: 'power2.in', immediateRender: false }, 15.8)
         .fromTo(e.roadTop, { opacity: 0 }, { opacity: 1, duration: 0.8, immediateRender: false }, 16.1)
-        .fromTo(S, { p: 0 }, { p: 1, duration: 13.2, ease: 'none', immediateRender: false }, 16.3)
-        .fromTo(rel, { opacity: 0 }, { opacity: 1, duration: 0.8, ease: 'power2.out', immediateRender: false }, 18.4)
-        .fromTo(feats, { y: 0 }, { y: () => -(feats.scrollHeight - window.innerHeight * 0.9), duration: 10, ease: 'none', immediateRender: false }, 19.4)
+        .fromTo(S, { p: 0 }, { p: 1, duration: 13.4, ease: 'sine.inOut', immediateRender: false }, 16.3)
+        .fromTo(rel, { opacity: 0 }, { opacity: 1, duration: 0.8, ease: 'power2.out', immediateRender: false }, 16.2)
+        .fromTo(feats, { y: 0 }, { y: () => -(feats.scrollHeight - window.innerHeight * 0.9), duration: 12, ease: 'none', immediateRender: false }, 17.2)
         .set({}, {}, 30);
     }
 
@@ -189,14 +196,13 @@ export class Service {
         gsap.set(e.boxes, { opacity: 1 - z });
         band.style.setProperty('--horizon', `${(((g + (gTarget - g) * z) / Lx.vh) * 100).toFixed(3)}%`);
 
-        // top-down truck on the road; the road scrolls so the truck stays at 58vh
+        // top-down truck drives the bend and down toward the ship
         const pos = MotionPathPlugin.getPositionOnPath(this.raw, S.p, true);
         gsap.set(e.truckTop, { x: pos.x, y: pos.y, rotation: pos.angle + 90 });
-        gsap.set(e.roadTop, { y: Math.max(0, Lx.vh * 0.58 - (pos.y - this.roadOffset)) });
 
         if (t > 8.3 && t < 15.9) cards.forEach((c) => c.classList.toggle('is-in', c.getBoundingClientRect().left < Lx.vw * 0.85));
         speed.classList.toggle('active', t > 2.4 && t < 29.5);
-        rel.classList.toggle('is-live', t > 18.4);
+        rel.classList.toggle('is-live', t > 16.2);
       } else {
         band.style.setProperty('--horizon', `${((Lx.ground / Lx.vh) * 100).toFixed(3)}%`);
       }

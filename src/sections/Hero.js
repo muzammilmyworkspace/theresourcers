@@ -1,7 +1,6 @@
 import { gsap } from 'gsap';
 import { $, $$, bp } from '../core/helpers.js';
 import { fill, fadeUp, revealGroup } from '../core/reveal.js';
-import { Globe } from '../webgl/Globe.js';
 
 /** static star field, drawn once */
 function drawStars(canvas) {
@@ -43,13 +42,19 @@ export class Hero {
 
     drawStars(q('.home-hero-stars'));
 
-    try {
-      this.globe = new Globe({ canvas, labelsWrap: q('.globe-labels') });
-      this.globe.init();
-    } catch (err) {
-      console.warn('Globe disabled:', err);
-      root.classList.add('no-webgl');
-    }
+    this.globeReady = import('../webgl/Globe.js').then(({ Globe }) => {
+      if (this.dead) return;
+      try {
+        this.globe = new Globe({ canvas, labelsWrap: q('.globe-labels') });
+        this.globe.init();
+        const labels = $$('.globe-label-text', root);
+        gsap.set(labels, { autoAlpha: 0, y: 10, filter: 'blur(5px)' });
+        if (this.played) gsap.to(labels, { autoAlpha: 1, y: 0, filter: 'blur(0px)', duration: 0.5, stagger: 0.05, delay: 0.9 });
+      } catch (err) {
+        console.warn('Globe disabled:', err);
+        root.classList.add('no-webgl');
+      }
+    });
 
     const globeWrap = q('.home-hero-globe');
     const blur = q('.home-hero-globe-blur');
@@ -78,14 +83,16 @@ export class Hero {
       .to(canvas, { autoAlpha: 1, duration: 1.2, ease: 'power2.out' }, 0.1)
       .to(blur, { autoAlpha: 1, scale: 1, duration: 1.4, ease: 'back.out(1.3)' }, 0.3)
       .to(text.tl, { progress: 1, duration: text.tl.duration(), ease: 'none' }, 0.35)
-      .to(labels, { autoAlpha: 1, y: 0, filter: 'blur(0px)', duration: 0.5, stagger: 0.05 }, 0.9);
+      .call(() => gsap.to($$('.globe-label-text', root), { autoAlpha: 1, y: 0, filter: 'blur(0px)', duration: 0.5, stagger: 0.05 }), null, 0.9);
   }
 
   play() {
+    this.played = true;
     this.tl.play();
   }
 
   destroy() {
+    this.dead = true;
     this.tl?.kill();
     this.globe?.destroy();
   }
@@ -93,7 +100,7 @@ export class Hero {
   /* globe dims and sinks as the hero scrolls away */
   scrollOut() {
     gsap.timeline({
-      scrollTrigger: { trigger: this.root, start: 'top top', end: 'bottom top', scrub: true },
+      scrollTrigger: { trigger: this.root, start: 'top top', end: 'bottom top', scrub: 0.8 },
     })
       .to($('.home-hero-globe', this.root), { filter: 'brightness(0.25)', yPercent: -85, ease: 'none' }, 0)
       .to($('.home-hero-inner', this.root), { yPercent: -18, autoAlpha: 0, ease: 'none' }, 0)

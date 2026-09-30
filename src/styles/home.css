@@ -113,3 +113,9 @@
   background: var(--bg-main); color: var(--content-main);
 }
 .home-placeholder .container { display: grid; gap: 3.2rem; }
+
+/* heading on the left edge; the text layer no longer blocks globe dragging */
+.home-hero-inner { pointer-events: none; }
+.home-hero-text-wrap { left: var(--container-pad); pointer-events: auto; }
+.home-hero-canvas { cursor: grab; }
+.home-hero-canvas:active { cursor: grabbing; }
