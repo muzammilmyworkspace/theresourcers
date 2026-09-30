@@ -235,7 +235,7 @@
   text-align: center; white-space: nowrap;
   margin-inline: calc(var(--container-pad) * -1);
 }
-.footer-particles { position: absolute; left: -5%; top: -30%; width: 110%; height: 160%; display: none; }
+.footer-particles { position: absolute; left: 50%; top: -30%; width: 104vw; max-width: none; height: 160%; margin-left: -52vw; display: none; }
 .footer.has-particles .footer-particles { display: block; }
 .footer.has-particles .footer-logo { opacity: 0; }
 

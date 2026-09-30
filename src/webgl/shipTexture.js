@@ -65,11 +65,13 @@ export function buildShipCanvas() {
       ctx.drawImage(img, 0, 0, c.width, c.height);
       // deck shadow under the stacks
       let i = 0;
-      for (const [a, b, y0, y1, col] of deck.cells) {
+      for (const [a, b, y0, y1, c0] of deck.cells) {
+        // the column the truck drives onto carries the same light-grey boxes as the truck
+        const col = Math.abs(a - HANDOFF_COL.x0) <= 2 ? '#d7d9dc' : c0;
         const x = a * SCALE, y = y0 * SCALE, w = (b - a) * SCALE, h = (y1 - y0) * SCALE;
         ctx.fillStyle = 'rgba(0,0,0,.35)';
         ctx.fillRect(x + 3, y + 4, w, h);
-        const logo = isLight(col) && h > 110 && i++ % 2 === 0;
+        const logo = Math.abs(a - HANDOFF_COL.x0) <= 2 ? h > 110 : isLight(col) && h > 110 && i++ % 2 === 0;
         drawBox(ctx, x, y, w, h, col, logo);
       }
       resolve(c);

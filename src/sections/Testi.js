@@ -22,24 +22,29 @@ export class Testi {
 
     const plane = q('.testi-plane'), cover = q('.testi-cover'), sky = q('.testi-cover .testi-sky'), list = q('.testi-list');
     const mobile = bp.isMobile();
-    const P = { x: -60, y: 0, r: 0, s: 1 };           // plane: left edge in vw, y in vh, bank deg, scale
+    const P = { x: -60, y: 0, r: 0, s: 1 };
+    const W = { v: -100 };                             // lets the sky finish clearing while the jet cruises           // plane: left edge in vw, y in vh, bank deg, scale
     const planeW = mobile ? 90 : 52;                   // matches CSS width (vw)
     const noseVw = () => P.x + planeW * 0.96;          // nose sits at ~96% of the image width
 
     const sync = () => {
       const vw = window.innerWidth / 100, vh = window.innerHeight / 100;
       plane.style.transform = `translate3d(${(P.x * vw).toFixed(1)}px, calc(-50% + ${(P.y * vh).toFixed(1)}px), 0) rotate(${P.r.toFixed(2)}deg) scale(${P.s.toFixed(3)})`;
-      const cx = Math.max(-12, noseVw() - 4) * vw;     // cover's notch trails the nose slightly
+      const cx = Math.max(-12, noseVw() - 4, W.v) * vw; // notch trails the nose, then peels away
       cover.style.transform = `translate3d(${cx.toFixed(1)}px, 0, 0)`;
       sky.__skyX = cx;
       updateSky();
     };
 
     const tl = gsap.timeline({ defaults: { ease: 'none' }, onUpdate: sync });
-    tl.fromTo(P, { x: -60, y: 6, r: -4, s: 0.94 }, { x: mobile ? 115 : 44, y: 0, r: 0, s: 1, duration: 3, ease: 'power2.out', immediateRender: false }, 0)
+    // the jet never stops: fast entry, slow cruise across while stories scroll, then climbs away
+    const cruise0 = mobile ? 100 : 30, cruise1 = mobile ? 112 : 78;
+    tl.fromTo(P, { x: -60, y: 6, r: -4, s: 0.94 }, { x: cruise0, y: 0, r: 0, s: 1, duration: 2.6, ease: 'power2.out', immediateRender: false }, 0)
+      .fromTo(P, { x: cruise0 }, { x: cruise1, duration: 6.6, ease: 'none', immediateRender: false }, 2.6)
+      .fromTo(W, { v: () => noseVw() - 4 }, { v: 115, duration: 1.2, ease: 'power2.inOut', immediateRender: false }, 2.4)
+      .fromTo(P, { y: 0, r: 0 }, { keyframes: { y: [0, -4, 2, -3], r: [0, -1.2, 0.8, -0.6] }, duration: 6.6, ease: 'sine.inOut', immediateRender: false }, 2.6)
       .fromTo(list, { y: () => window.innerHeight * 0.35 }, { y: () => -(list.scrollHeight - window.innerHeight * 0.9), duration: 7, immediateRender: false }, 1.2)
-      .fromTo(P, { x: mobile ? 115 : 44, y: 0 }, { x: mobile ? 118 : 47, y: -3, duration: 6.2, ease: 'sine.inOut', immediateRender: false }, 3)
-      .fromTo(P, { x: mobile ? 118 : 47, y: -3, r: 0, s: 1 }, { x: 120, y: -22, r: -6, s: 0.92, duration: 2, ease: 'power2.in', immediateRender: false }, 9.2);
+      .fromTo(P, { x: cruise1, y: -3, r: -0.6, s: 1 }, { x: 125, y: -22, r: -6, s: 0.92, duration: 2, ease: 'power2.in', immediateRender: false }, 9.2);
 
     ScrollTrigger.create({
       trigger: q('.testi-scroll'),
