@@ -16,8 +16,19 @@ const many = (target, make) => {
 };
 
 /** Line-by-line "ink" fill with a brand-coloured leading edge */
+/* two-tone headings: each .tone child fills separately so it keeps its colour */
+const expandTones = (target) => {
+  if (!target) return [];
+  if (typeof target === 'string') target = document.querySelectorAll(target);
+  const list = target instanceof Element ? [target] : [...target];
+  return list.flatMap((el) => {
+    const tones = [...el.children].filter((c) => c.classList.contains('tone'));
+    return tones.length ? tones : [el];
+  });
+};
+
 export const fill = (target, { revert = true, at } = {}) =>
-  many(target, (el) => {
+  many(expandTones(target), (el) => {
     let split = null;
     return {
       el, at,

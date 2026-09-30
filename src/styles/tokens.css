@@ -25,16 +25,17 @@
 
   --ring: #29292e;
 
-  --font-heading: "Space Grotesk", Arial, sans-serif;
-  --font-body: "Inter", "Helvetica Neue", Arial, sans-serif;
-  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+  --font-heading: "Saira", Arial, sans-serif;
+  --font-body: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --font-mono: "Share Tech Mono", ui-monospace, monospace;
+  --tone-dim: #9b9b9b;
 
   --ease-silk: cubic-bezier(0.445, 0.05, 0.55, 0.95);
   --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
 
   --container-pad: 4rem;
   --grid-gap: 2rem;
-  --header-h: 8.4rem;
+  --header-h: 11.6rem;
 }
 
 [data-theme="dark"] {

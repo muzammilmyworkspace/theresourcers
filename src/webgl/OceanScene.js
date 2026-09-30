@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { gsap } from 'gsap';
+import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 import { WakeSimulation } from './WakeSimulation.js';
 
 /**
@@ -221,6 +222,34 @@ export class OceanScene {
     plane.rotation.x = -Math.PI / 2;
     this.scene.add(plane);
 
+    // lit 3D ship riding in the wake
+    const pmrem = new THREE.PMREMGenerator(this.renderer);
+    this.scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
+    this.scene.environmentIntensity = 0.55;
+    const sun = new THREE.DirectionalLight('#fff6e8', 2.4);
+    sun.position.set(-0.08, 53.3, 26);
+    this.scene.add(sun, new THREE.HemisphereLight('#cfe3ff', '#0a2146', 0.7));
+    // photographed container ship (bow up), sized to the wake simulation's hull
+    const tex = new THREE.TextureLoader().load('/img/ship-top.webp', () => (this.dirty = true));
+    tex.colorSpace = THREE.SRGBColorSpace;
+    tex.anisotropy = 8;
+    this.ship = new THREE.Mesh(
+      new THREE.PlaneGeometry(SHIP_L * (255 / 1299), SHIP_L),
+      new THREE.MeshBasicMaterial({ map: tex, transparent: true, depthWrite: false })
+    );
+    this.ship.rotation.x = -Math.PI / 2;
+    this.ship.position.y = 0.3;
+    this.scene.add(this.ship);
+    // soft contact shadow on the water
+    const sh = document.createElement('canvas'); sh.width = 64; sh.height = 256;
+    const sctx = sh.getContext('2d');
+    const grad = sctx.createRadialGradient(32, 128, 4, 32, 128, 128);
+    grad.addColorStop(0, 'rgba(0,8,30,.55)'); grad.addColorStop(1, 'rgba(0,8,30,0)');
+    sctx.fillStyle = grad; sctx.fillRect(0, 0, 64, 256);
+    const shadow = new THREE.Mesh(new THREE.PlaneGeometry(3.2, 13), new THREE.MeshBasicMaterial({ map: new THREE.CanvasTexture(sh), transparent: true, depthWrite: false }));
+    shadow.rotation.x = -Math.PI / 2; shadow.position.set(0.35, 0.02, 0.5);
+    this.scene.add(shadow);
+
     this.resize();
     this.ro = new ResizeObserver(() => this.resize());
     this.ro.observe(canvas);
@@ -273,6 +302,11 @@ export class OceanScene {
     u.uWakeIntensity.value = this.controls.wakeIntensity;
     const visibleH = 2 * this.height * Math.tan(THREE.MathUtils.degToRad(this.camera.fov / 2));
     u.uPx.value = visibleH / (this.canvas.clientHeight || 1);
+
+    // gentle roll / sway
+    const t = u.uTime.value;
+    this.ship.position.x = Math.sin(t * 0.55) * 0.035;
+    this.ship.rotation.z = Math.sin(t * 0.8) * 0.006;
 
     this.renderer.render(this.scene, this.camera);
   };

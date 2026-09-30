@@ -1,26 +1,26 @@
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { $, $$, bp, rem } from '../core/helpers.js';
-import { fill, fadeUp, line, revealGroup } from '../core/reveal.js';
-import { portScene, topTruck, PORT } from '../core/portArt.js';
+import { MotionPathPlugin } from 'gsap/MotionPathPlugin';
+import { $, $$, bp } from '../core/helpers.js';
+import { fill, fadeUp, revealGroup } from '../core/reveal.js';
 import { smooth } from '../core/lenis.js';
 
-const deg = (dist) => (dist / PORT.WHEEL_R) * (180 / Math.PI);
+gsap.registerPlugin(MotionPathPlugin);
+
+/* measurements taken from /img/truck-side.webp (1301 × 383) */
+const TRUCK = { w: 1301, h: 383, deck: 243, trailerFrom: 5, trailerTo: 918 };
+const WHEELS = [[118, 322], [238, 322], [355, 322], [830, 325], [1158, 325]];
+const WHEEL_R = 53;
+const BOX = { w: 1290, h: 317 };
 
 /**
- * One sticky 100vh stage, one scrubbed master timeline (30 units):
- *   0 – 9   crane picks the container off the ship and loads the truck
- *   9 – 20  truck drives: world pans, service cards scroll horizontally
- *  20 – 30  road goes dark, truck turns top-down, sub-services roll past
- * Mobile runs chapter one only; cards + sub-list stack below the stage.
+ * Services scroll story, built from photographs (30 timeline units):
+ *   0 – 6.8   an overhead spreader lifts the container off the stack; the truck
+ *             drives in and the container is lowered onto the trailer
+ *   6.8 – 15.8 zoom out, truck drives, services run horizontally in the black band
+ *  15.8 – 30  top-down: the truck takes the bend and climbs the page
  */
 export class Service {
-  state = {
-    trolleyX: PORT.TROLLEY_START, hookY: PORT.HOOK_UP, sway: 0,
-    truckX: -1300, wheel: 0, cam: 1, camY: 0, worldX: 0, dash: 0,
-    sheenX: -900, topDash: 0,
-  };
-
   constructor(root = $('.home-service')) {
     this.root = root;
   }
@@ -31,194 +31,198 @@ export class Service {
     this.mobile = bp.isMobile();
     const q = (s) => $(s, root);
 
-    q('[data-port-scene]').innerHTML = portScene();
-    q('.svc-top-truck').innerHTML = topTruck();
-
-    const svg = q('.svc-svg');
     if (this.mobile) {
-      svg.setAttribute('viewBox', '560 150 760 760');
-      svg.setAttribute('preserveAspectRatio', 'xMidYMax meet');
       const mob = q('.svc-mobile');
       mob.dataset.section = 'dark';
-      mob.append(q('.svc-track'), q('.svc-sub'));
+      mob.dataset.theme = 'dark';
+      mob.append(q('.svc-track'), q('.svc-rel'));
     }
 
     this.el = {
-      cam: q('.svc-cam'), world: q('.svc-world'),
-      trolley: q('.svc-trolley'), swing: q('.svc-swing'), hook: q('.svc-hook'),
-      cables: $$('.svc-cable', root),
-      shipBox: q('.svc-shipbox'), hookBox: q('.svc-hookbox'), truckBox: q('.svc-truckbox'),
-      truck: q('.svc-truck'), body: q('.svc-truck-body'),
-      wheels: $$('.svc-wheel', root).map((w) => ({ el: w, cx: +w.dataset.cx, cy: +w.dataset.cy })),
-      dash: q('.svc-road-dash'), sheen: q('.svc-sheen'),
-      topRoad: q('.svc-top-road'),
+      world: q('.svc-world'), boxes: $$('.svc-box', root), cargo: q('.svc-cargo'),
+      rig: q('.svc-rig'), cables: $$('.svc-cable', root), spreader: q('.svc-spreader'),
+      truck: q('.svc-truck'),
+      roadTop: q('.svc-road-top'), roadSvg: q('.svc-road-svg'), roadPath: q('.svc-road-path'), roadDash: q('.svc-road-dash'),
+      truckTop: q('.svc-truck-top'),
     };
-    gsap.set([this.el.hookBox, this.el.truckBox], { autoAlpha: 0 });
-    this.render();
-
-    revealGroup({
-      trigger: root,
-      start: 'top 60%',
-      allowMobile: true,
-      items: [
-        line(q('.svc-head-label .label-line')),
-        fill(q('.svc-head-label .txt-anim'), { at: 0 }),
-        fill(q('.svc-head-title'), { at: 0.1 }),
-        fill(q('.svc-head-desc'), { at: 0.3 }),
-      ],
+    // rotating wheel sprites cut from the photo
+    this.wheels = WHEELS.map(([cx, cy]) => {
+      const w = document.createElement('span');
+      w.className = 'svc-wheel';
+      w.dataset.cx = cx; w.dataset.cy = cy;
+      this.el.truck.appendChild(w);
+      return w;
     });
 
-    this.mobile ? this.buildMobile() : this.buildDesktop();
+    const imgs = $$('img', q('.svc-scene'));
+    Promise.all(imgs.map((i) => (i.complete ? 0 : new Promise((r) => { i.onload = r; i.onerror = r; })))).then(() => {
+      if (this.dead) return;
+      this.build();
+      if (!this.mobile) this.initSpeedometer(q('.svc-speed'));
+      this.buildReveals();
+      ScrollTrigger.refresh();
+    });
   }
 
-  /* ---------------- per-frame SVG write ---------------- */
-  render = () => {
-    const s = this.state, e = this.el;
-    e.trolley.setAttribute('transform', `translate(${s.trolleyX.toFixed(2)} 0)`);
-    e.swing.setAttribute('transform', `rotate(${s.sway.toFixed(3)} 0 292)`);
-    e.hook.setAttribute('transform', `translate(0 ${s.hookY.toFixed(2)})`);
-    e.cables.forEach((c) => c.setAttribute('y2', s.hookY.toFixed(2)));
-    e.truck.setAttribute('transform', `translate(${s.truckX.toFixed(2)} 0)`);
-    e.body.setAttribute('transform', `translate(0 ${(Math.sin(s.wheel * 0.09) * 0.9).toFixed(2)})`);
-    e.wheels.forEach((w) => w.el.setAttribute('transform', `rotate(${s.wheel.toFixed(1)} ${w.cx} ${w.cy})`));
-    const ox = PORT.DROP_X, oy = PORT.ROAD_Y;
-    e.cam.setAttribute('transform', `translate(${ox} ${oy + s.camY}) scale(${s.cam.toFixed(4)}) translate(${-ox} ${-oy})`);
-    e.world.setAttribute('transform', `translate(${s.worldX.toFixed(1)} 0)`);
-    e.dash.setAttribute('stroke-dashoffset', s.dash.toFixed(1));
-    e.sheen.setAttribute('x', s.sheenX.toFixed(1));
-    if (e.topRoad) e.topRoad.style.setProperty('--dash', `${s.topDash.toFixed(1)}px`);
-  };
-
-  /* ---------------- chapter one (shared) ---------------- */
-  addCrane(tl) {
-    const s = this.state, e = this.el;
-    const truckIn = 1300;
-    tl.to(s, { hookY: PORT.HOOK_PICK, duration: 1.5, ease: 'power1.inOut' }, 0)
-      .set(e.shipBox, { autoAlpha: 0 }, 1.5)
-      .set(e.hookBox, { autoAlpha: 1 }, 1.5)
-      .to(s, { hookY: PORT.HOOK_UP, duration: 1.2, ease: 'power1.inOut' }, 1.6)
-      .to(s, { truckX: 0, wheel: `+=${deg(truckIn)}`, duration: 3, ease: 'power2.out' }, 0.4)
-      .to(s, { trolleyX: PORT.DROP_X, duration: 2.2, ease: 'sine.inOut' }, 2.8)
-      .to(s, { keyframes: { sway: [0, -4.5, 3.2, -1.2, 0] }, duration: 2.6, ease: 'none' }, 2.8)
-      .to(s, { hookY: PORT.HOOK_DROP, duration: 1.2, ease: 'power1.inOut' }, 5.0)
-      .set(e.hookBox, { autoAlpha: 0 }, 6.2)
-      .set(e.truckBox, { autoAlpha: 1 }, 6.2)
-      .to(s, { hookY: 360, duration: 1, ease: 'power1.inOut' }, 6.3);
-  }
-
-  buildDesktop() {
-    const root = this.root;
-    const s = this.state;
-    const q = (sel) => $(sel, root);
-    const head = q('.svc-head'), track = q('.svc-track'), wordmark = q('.svc-wordmark');
-    const cards = $$('.svc-card', track);
-    const dark = q('.svc-dark'), topdown = q('.svc-topdown'), sub = q('.svc-sub');
-    const topTruckEl = q('.svc-top-truck'), trailer = q('.svc-top-trailer');
-    const list = q('.svc-sub-list'), listWrap = q('.svc-sub-list-wrap');
-    const items = $$('.svc-sub-item', root);
-    const speed = q('.svc-speed');
-
-    const trackEnd = () => -(track.scrollWidth - window.innerWidth + rem(4));
-    const listEnd = () => -(list.scrollHeight - listWrap.clientHeight * 0.45);
-    const driveDist = 3600;
-
-    gsap.set(topTruckEl, { rotation: 90, scale: 0.85 });
-    gsap.set(track, { x: window.innerWidth });
-
-    const tl = gsap.timeline({ defaults: { ease: 'none' }, onUpdate: () => { this.render(); onFrame(); } });
-    this.addCrane(tl);
-
-    tl
-      /* zoom out once the truck is loaded */
-      .to(s, { cam: 0.62, camY: 40, duration: 1.7, ease: 'sine.inOut' }, 7.3)
-      /* chapter two — drive + horizontal cards */
-      .to(head, { autoAlpha: 0, y: -rem(4), duration: 0.8, ease: 'power2.in' }, 8.6)
-      .set(track, { visibility: 'visible' }, 9)
-      .to(s, { worldX: -driveDist, dash: -driveDist, wheel: `+=${deg(driveDist)}`, duration: 11, ease: 'power1.in' }, 9)
-      .fromTo(track, { x: () => window.innerWidth }, { x: trackEnd, duration: 10, ease: 'none' }, 9.4)
-      .fromTo(wordmark, { autoAlpha: 0, x: 0 }, { autoAlpha: 1, duration: 1 }, 9.4)
-      .to(wordmark, { x: () => -wordmark.offsetWidth * 0.3, duration: 10 }, 9.4)
-      /* chapter three — road takeover */
-      .to(s, { sheenX: 2200, duration: 1.4, ease: 'power1.inOut' }, 19.6)
-      .to(this.el.sheen, { opacity: 1, duration: 0.4 }, 19.6)
-      .to([track, wordmark], { autoAlpha: 0, y: -rem(6), duration: 1, ease: 'power2.in' }, 19.8)
-      .to(dark, { opacity: 1, duration: 1.4, ease: 'power1.inOut' }, 20.4)
-      .to(topdown, { opacity: 1, duration: 1, ease: 'power1.out' }, 21.4)
-      .to(topTruckEl, { rotation: 0, scale: 1, duration: 1.4, ease: 'power1.inOut' }, 22)
-      .to(trailer, { keyframes: { rotation: [0, 12, -6, 0] }, svgOrigin: '60 120', duration: 1.6, ease: 'none' }, 22)
-      .to(sub, { opacity: 1, duration: 1, ease: 'power1.out' }, 22.4)
-      .fromTo(q('.svc-sub-head'), { y: rem(4) }, { y: 0, duration: 1, ease: 'power2.out' }, 22.4)
-      .to(s, { topDash: 2400, duration: 7, ease: 'none' }, 23)
-      .fromTo(list, { y: listWrap.clientHeight * 0.35 }, { y: listEnd, duration: 6.6, ease: 'none' }, 23.2)
-      .to(topTruckEl, { keyframes: { x: [0, rem(1.2), -rem(0.8), 0] }, duration: 6.6, ease: 'sine.inOut' }, 23.2)
-      .set({}, {}, 30);
-
-    const center = () => {
-      const wr = listWrap.getBoundingClientRect();
-      const mid = wr.top + wr.height * 0.4;
-      let best = null, bestD = Infinity;
-      items.forEach((it) => {
-        const r = it.getBoundingClientRect();
-        const d = Math.abs(r.top + r.height / 2 - mid);
-        if (d < bestD) { bestD = d; best = it; }
-      });
-      items.forEach((it) => it.classList.toggle('is-active', it === best));
+  /* ---------------- geometry (px) ---------------- */
+  layout() {
+    const vw = window.innerWidth, vh = window.innerHeight, m = this.mobile;
+    const TW = m ? vw * 1.35 : Math.min(vw * 0.64, vh * 1.7);
+    const k = TW / TRUCK.w;
+    const TH = TRUCK.h * k;
+    const ground = vh * (m ? 0.74 : 0.86);
+    const truckX = m ? vw * 0.5 - TW * 0.42 : vw * 0.04;
+    const CW = (TRUCK.trailerTo - TRUCK.trailerFrom) * k * 0.985;
+    const CH = CW * (BOX.h / BOX.w);
+    const deckY = ground - TH + TRUCK.deck * k;
+    const stackX = m ? vw * 0.62 : truckX + TW + vw * 0.02;
+    return {
+      vw, vh, TW, TH, k, ground, truckX, CW, CH, stackX,
+      cargoEnd: { x: truckX + TRUCK.trailerFrom * k + CW * 0.0075, y: deckY - CH },
+      cargoStart: { x: stackX, y: ground - CH * 3 },
+      sH: Math.max(12, CH * 0.1),
     };
+  }
 
-    function onFrame() {
-        const t = tl.time();
-        const vw = window.innerWidth;
-        if (t > 9 && t < 20.5) cards.forEach((c) => {
-          const left = c.getBoundingClientRect().left;
-          c.classList.toggle('is-in', left < vw * 0.92);
-        });
-        speed.classList.toggle('active', t > 9 && t < 29.4);
-        root.dataset.section = t > 21 ? 'dark' : 'light';
-        sub.classList.toggle('is-live', t > 22.4);
-        if (t > 22.4) center();
+  place() {
+    const L = (this.L = this.layout());
+    const e = this.el;
+    gsap.set(e.boxes[0], { x: L.stackX, y: L.ground - L.CH, width: L.CW, height: L.CH });
+    gsap.set(e.boxes[1], { x: L.stackX, y: L.ground - L.CH * 2, width: L.CW, height: L.CH });
+    gsap.set(e.cargo, { width: L.CW, height: L.CH });
+    gsap.set(e.spreader, { width: L.CW * 1.02, height: L.sH, x: -L.CW * 0.01 });
+    gsap.set(e.cables[0], { left: L.CW * 0.22 });
+    gsap.set(e.cables[1], { left: L.CW * 0.78 });
+    gsap.set(e.truck, { width: L.TW, y: L.ground - L.TH });
+    const r = WHEEL_R * L.k;
+    this.wheels.forEach((w) => {
+      const cx = +w.dataset.cx * L.k, cy = +w.dataset.cy * L.k;
+      Object.assign(w.style, {
+        width: `${r * 2}px`, height: `${r * 2}px`, left: `${cx - r}px`, top: `${cy - r}px`,
+        backgroundImage: 'url(/img/truck-side.webp)',
+        backgroundSize: `${L.TW}px ${L.TH}px`,
+        backgroundPosition: `${-(cx - r)}px ${-(cy - r)}px`,
+      });
+    });
+
+    // top-down road: comes in from the left, turns up at the centre, climbs the page
+    const roadW = L.vw * (this.mobile ? 0.36 : 0.13);
+    const H = L.vh * 3;
+    const cx = L.vw * 0.5, y0 = H - L.vh * 0.45, R = roadW * 1.25;
+    const d = `M ${-L.vw * 0.3} ${y0} L ${cx - R} ${y0} A ${R} ${R} 0 0 0 ${cx} ${y0 - R} L ${cx} ${-L.vh}`;
+    e.roadTop.style.height = `${H}px`;
+    e.roadTop.style.top = `${-(H - L.vh)}px`;
+    e.roadSvg.setAttribute('viewBox', `0 0 ${L.vw} ${H}`);
+    [e.roadPath, e.roadDash].forEach((p) => p.setAttribute('d', d));
+    e.roadPath.setAttribute('stroke-width', roadW);
+    const tw = roadW * 0.4;
+    gsap.set(e.truckTop, { width: tw, height: tw * (1288 / 239), xPercent: -50, yPercent: -50 });
+    this.raw = MotionPathPlugin.getRawPath(e.roadPath);
+    MotionPathPlugin.cacheRawPathMeasurements(this.raw);
+    this.roadOffset = H - L.vh;
+  }
+
+  build() {
+    const root = this.root;
+    const q = (s) => $(s, root);
+    const mobile = this.mobile;
+    const band = q('.svc-band'), track = q('.svc-track'), cards = $$('.svc-card', root);
+    const bigword = q('.svc-bigword'), rel = q('.svc-rel'), feats = q('.svc-feats'), speed = q('.svc-speed');
+    const e = this.el;
+
+    this.place();
+    const S = (this.S = { rigX: 0, rigY: 0, cargoX: 0, cargoY: 0, truckX: 0, spin: 0, zoom: 0, p: 0 });
+    const L = () => this.L;
+    const lift = () => L().CH * 1.5;
+
+    const tl = gsap.timeline({ defaults: { ease: 'power1.inOut' }, onUpdate: () => frame() });
+    // fromTo with function values everywhere → reversible, resize-safe
+    tl.fromTo(S, { rigX: () => L().cargoStart.x, rigY: () => -L().vh * 0.3, cargoX: () => L().cargoStart.x, cargoY: () => L().cargoStart.y, truckX: () => -L().TW - 60 },
+      { rigY: () => L().cargoStart.y - L().sH, duration: 1.2 }, 0)
+      .fromTo(S, { rigY: () => L().cargoStart.y - L().sH, cargoY: () => L().cargoStart.y },
+        { rigY: () => L().cargoStart.y - L().sH - lift(), cargoY: () => L().cargoStart.y - lift(), duration: 1.2, immediateRender: false }, 1.2)
+      .fromTo(S, { rigX: () => L().cargoStart.x, cargoX: () => L().cargoStart.x },
+        { rigX: () => L().cargoEnd.x, cargoX: () => L().cargoEnd.x, duration: 1.6, immediateRender: false }, 2.4)
+      .fromTo(S, { truckX: () => -L().TW - 60, spin: 0 }, { truckX: () => L().truckX, spin: 900, duration: 2.2, ease: 'power2.out', immediateRender: false }, 2.4)
+      .fromTo(S, { rigY: () => L().cargoStart.y - L().sH - lift(), cargoY: () => L().cargoStart.y - lift() },
+        { rigY: () => L().cargoEnd.y - L().sH, cargoY: () => L().cargoEnd.y, duration: 1.3, immediateRender: false }, 4.6)
+      .fromTo(S, { rigY: () => L().cargoEnd.y - L().sH }, { rigY: () => -L().vh * 0.4, duration: 1, immediateRender: false }, 5.9);
+
+    if (mobile) {
+      tl.fromTo(S, { truckX: () => L().truckX, spin: 900 }, { truckX: () => L().vw * 1.2, spin: 2600, duration: 2.4, ease: 'power2.in', immediateRender: false }, 7)
+        .set({}, {}, 9.6);
+    } else {
+      tl.fromTo(S, { zoom: 0 }, { zoom: 1, duration: 2, immediateRender: false }, 6.8)
+        .fromTo(S, { spin: 900 }, { spin: 5200, duration: 9, ease: 'none', immediateRender: false }, 6.8)
+        .fromTo([track, bigword, q('.svc-band-btn')], { opacity: 0 }, { opacity: 1, duration: 0.7, ease: 'power2.out', immediateRender: false }, 8.3)
+        .fromTo(track, { x: 0 }, { x: () => -(track.scrollWidth - window.innerWidth), duration: 7, ease: 'none', immediateRender: false }, 8.8)
+        .fromTo(bigword, { x: 0 }, { x: () => -bigword.scrollWidth * 0.45, duration: 7.5, ease: 'none', immediateRender: false }, 8.3)
+        .fromTo([track, bigword, q('.svc-band-btn'), band, e.world], { opacity: 1 }, { opacity: 0, duration: 0.8, ease: 'power2.in', immediateRender: false }, 15.8)
+        .fromTo(e.roadTop, { opacity: 0 }, { opacity: 1, duration: 0.8, immediateRender: false }, 16.1)
+        .fromTo(S, { p: 0 }, { p: 1, duration: 13.2, ease: 'none', immediateRender: false }, 16.3)
+        .fromTo(rel, { opacity: 0 }, { opacity: 1, duration: 0.8, ease: 'power2.out', immediateRender: false }, 18.4)
+        .fromTo(feats, { y: 0 }, { y: () => -(feats.scrollHeight - window.innerHeight * 0.9), duration: 10, ease: 'none', immediateRender: false }, 19.4)
+        .set({}, {}, 30);
     }
+
+    const ez = gsap.parseEase('power2.inOut');
+    const frame = () => {
+      const t = tl.time(), Lx = this.L;
+      gsap.set(e.rig, { x: S.rigX });
+      e.cables.forEach((c) => (c.style.height = `${Math.max(0, S.rigY)}px`));
+      gsap.set(e.spreader, { y: S.rigY });
+      gsap.set(e.truck, { x: S.truckX });
+      // the container rides the truck once it is down
+      if (t >= 5.9) gsap.set(e.cargo, { x: S.truckX + (Lx.cargoEnd.x - Lx.truckX), y: Lx.cargoEnd.y });
+      else gsap.set(e.cargo, { x: S.cargoX, y: S.cargoY });
+      const rot = `rotate(${S.spin.toFixed(1)}deg)`;
+      this.wheels.forEach((w) => (w.style.transform = rot));
+
+      if (!mobile) {
+        // zoom: shrink the world around the truck and lift the ground to 42vh
+        const z = ez(S.zoom);
+        const k = 1 - 0.62 * z;
+        const g = Lx.ground, gTarget = Lx.vh * 0.42;
+        const cx = Lx.truckX + Lx.TW * 0.5, cxTarget = Lx.vw * 0.26;
+        const tx = (cxTarget - cx * k) * z, ty = (gTarget - g * k) * z;
+        e.world.style.transform = `translate(${tx.toFixed(1)}px, ${ty.toFixed(1)}px) scale(${k.toFixed(4)})`;
+        gsap.set(e.boxes, { opacity: 1 - z });
+        band.style.setProperty('--horizon', `${(((g + (gTarget - g) * z) / Lx.vh) * 100).toFixed(3)}%`);
+
+        // top-down truck on the road; the road scrolls so the truck stays at 58vh
+        const pos = MotionPathPlugin.getPositionOnPath(this.raw, S.p, true);
+        gsap.set(e.truckTop, { x: pos.x, y: pos.y, rotation: pos.angle + 90 });
+        gsap.set(e.roadTop, { y: Math.max(0, Lx.vh * 0.58 - (pos.y - this.roadOffset)) });
+
+        if (t > 8.3 && t < 15.9) cards.forEach((c) => c.classList.toggle('is-in', c.getBoundingClientRect().left < Lx.vw * 0.85));
+        speed.classList.toggle('active', t > 2.4 && t < 29.5);
+        rel.classList.toggle('is-live', t > 18.4);
+      } else {
+        band.style.setProperty('--horizon', `${((Lx.ground / Lx.vh) * 100).toFixed(3)}%`);
+      }
+    };
 
     ScrollTrigger.create({
       trigger: q('.svc-scroll'),
       start: 'top top',
       end: 'bottom bottom',
-      scrub: bp.isDesktop() ? 1 : true,
+      scrub: bp.isDesktop() ? 0.8 : true,
       animation: tl,
       invalidateOnRefresh: true,
+      onRefreshInit: () => this.place(),
+      onRefresh: () => frame(),
     });
-
-    this.initSpeedometer(speed);
+    this.tl = tl;
+    frame();
   }
 
-  buildMobile() {
+  buildReveals() {
     const root = this.root;
-    const s = this.state;
-    const tl = gsap.timeline({ defaults: { ease: 'none' }, onUpdate: this.render });
-    this.addCrane(tl);
-    tl.to(s, { truckX: 900, wheel: `+=${deg(900)}`, dash: -900, duration: 1.4, ease: 'power2.in' }, 7.4)
-      .set({}, {}, 8.8);
-
-    ScrollTrigger.create({
-      trigger: $('.svc-scroll', root),
-      start: 'top top',
-      end: 'bottom bottom',
-      scrub: true,
-      animation: tl,
-    });
-
-    // stacked content below the stage
+    if (!this.mobile) return;
     const mob = $('.svc-mobile', root);
-    ScrollTrigger.batch($$('.svc-card', mob), {
-      start: 'top 90%',
-      once: true,
-      onEnter: (els) => els.forEach((c, i) => setTimeout(() => c.classList.add('is-in'), i * 120)),
-    });
-    revealGroup({
-      trigger: $('.svc-sub-head', mob),
-      allowMobile: true,
-      items: [line($('.svc-sub-head .label-line', mob)), fill($('.svc-sub-heading', mob))],
-    });
-    $$('.svc-sub-item', mob).forEach((it) => revealGroup({ trigger: it, items: [fadeUp(it, { y: 2 })] }));
+    revealGroup({ trigger: $('.svc-band-head', mob), allowMobile: true, items: [fill($('.svc-head-title', mob)), fadeUp($('.svc-head-desc', mob))] });
+    $$('.svc-card, .svc-feat', mob).forEach((c) => revealGroup({ trigger: c, items: [fadeUp(c, { y: 2 })] }));
+    revealGroup({ trigger: $('.svc-rel-title', mob), items: [fill($('.svc-rel-title', mob)), fadeUp($('.svc-rel-desc', mob))] });
   }
 
   /* live km/h from real scroll velocity */
@@ -248,6 +252,7 @@ export class Service {
   }
 
   destroy() {
+    this.dead = true;
     if (this.speedTick) gsap.ticker.remove(this.speedTick);
   }
 }

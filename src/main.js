@@ -21,6 +21,7 @@ import { header } from './core/header.js';
 import { Loader } from './core/loader.js';
 import { transition } from './core/transition.js';
 import { initTextScramble } from './core/textScramble.js';
+import { initWaves } from './core/waves.js';
 import { Hero } from './sections/Hero.js';
 import { Intro } from './sections/Intro.js';
 import { Service } from './sections/Service.js';
@@ -62,6 +63,7 @@ function mount(container) {
   page = (PAGES[ns] || (() => ({})))(container) || {};
   initCta($('.home-cta', container));
   initTextScramble(container);
+  initWaves(container);
 }
 
 function unmount() {
@@ -124,6 +126,7 @@ async function boot() {
   header.init();
   initTextScramble(document.querySelector('.header'));
   new Footer().init();
+  initWaves(document.querySelector('.footer'));
 
   mount($('[data-barba="container"]'));
   initRouter();

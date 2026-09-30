@@ -17,8 +17,8 @@ const ROUTES = [
 ];
 const LABELS = ['Shanghai', 'Karachi', 'Dubai', 'Rotterdam', 'Ho Chi Minh', 'Istanbul', 'Los Angeles'];
 
-const COLOR_FRONT = new THREE.Color('#0016cb');
-const COLOR_ARC = new THREE.Color('#ff5500');
+const COLOR_FRONT = new THREE.Color('#ffffff');
+const COLOR_ARC = new THREE.Color('#ff6a1a');
 
 /* ---------------- shaders ---------------- */
 const dotsVert = /* glsl */ `
@@ -41,8 +41,8 @@ const dotsFrag = /* glsl */ `
     vec2 c = gl_PointCoord - 0.5;
     if (dot(c, c) > 0.25) discard;
     float front = smoothstep(-0.05, 0.35, vFacing);
-    float a = mix(uBack * 4.0, 0.9, front);
-    gl_FragColor = vec4(mix(vec3(0.62, 0.68, 0.86), uColor, front), a * uOpacity);
+    float a = mix(uBack, 0.95, front);
+    gl_FragColor = vec4(mix(vec3(0.45, 0.5, 0.75), uColor, front), a * uOpacity);
   }`;
 
 const sphereVert = /* glsl */ `
@@ -60,11 +60,26 @@ const sphereFrag = /* glsl */ `
   varying vec3 vView;
   void main() {
     float f = 1.0 - max(dot(vN, vView), 0.0);
-    vec3 base = mix(vec3(1.0), vec3(0.93, 0.95, 1.0), f);
-    vec3 rim = vec3(0.0, 0.09, 0.8);
-    vec3 col = mix(base, rim, pow(f, 3.0) * 0.4);
-    float a = mix(0.72, 1.0, pow(f, 2.0));
-    gl_FragColor = vec4(col, a * uOpacity);
+    // sun from the upper-left: warm rim there, cool blue rim lower-right
+    float side = clamp(dot(normalize(vN.xy + 1e-4), normalize(vec2(-0.7, 0.7))) * 0.5 + 0.5, 0.0, 1.0);
+    vec3 warm = vec3(1.0, 0.42, 0.1);
+    vec3 cool = vec3(0.12, 0.35, 1.0);
+    vec3 rimCol = mix(cool, warm, smoothstep(0.35, 0.9, side));
+    vec3 body = vec3(0.008, 0.008, 0.02) + cool * 0.04 * (1.0 - side);
+    vec3 col = body + rimCol * pow(f, 5.0) * 1.15;
+    gl_FragColor = vec4(col, uOpacity);
+  }`;
+
+const atmoFrag = /* glsl */ `
+  uniform float uOpacity;
+  varying vec3 vN;
+  varying vec3 vView;
+  void main() {
+    float f = 1.0 - max(dot(vN, vView), 0.0);
+    float i = pow(f, 3.2) * (1.0 - smoothstep(0.72, 1.0, f)) * 1.5;
+    float side = clamp(dot(normalize(vN.xy + 1e-4), normalize(vec2(-0.7, 0.7))) * 0.5 + 0.5, 0.0, 1.0);
+    vec3 col = mix(vec3(0.12, 0.35, 1.0), vec3(1.0, 0.45, 0.12), smoothstep(0.35, 0.9, side));
+    gl_FragColor = vec4(col * i, i * uOpacity);
   }`;
 
 const arcVert = /* glsl */ `
@@ -106,7 +121,7 @@ export class Globe {
     this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     this.scene = new THREE.Scene();
     this.camera = new THREE.PerspectiveCamera(35, 1, 0.1, 100);
-    this.camera.position.z = bp.isMobile() ? 3.6 : bp.isTablet() ? 3.7 : 3.45;
+    this.camera.position.z = bp.isMobile() ? 3.9 : 3.75;
 
     this.root = new THREE.Group();
     this.spin = new THREE.Group();
@@ -120,7 +135,7 @@ export class Globe {
     this.buildLabels();
 
     // face Asia on load
-    const focus = toVec(22, 92);
+    const focus = toVec(24, 62);
     this.phi = Math.atan2(-focus.x, focus.z);
 
     this.resize();
@@ -145,6 +160,15 @@ export class Globe {
     const sphere = new THREE.Mesh(new THREE.SphereGeometry(0.985, 64, 64), this.sphereMat);
     sphere.renderOrder = 1;
     this.spin.add(sphere);
+
+    this.atmoMat = new THREE.ShaderMaterial({
+      vertexShader: sphereVert, fragmentShader: atmoFrag,
+      uniforms: { uOpacity: { value: 1 } },
+      transparent: true, depthWrite: false, blending: THREE.AdditiveBlending,
+    });
+    const atmo = new THREE.Mesh(new THREE.SphereGeometry(1.08, 64, 64), this.atmoMat);
+    atmo.renderOrder = 3;
+    this.root.add(atmo);
   }
 
   buildDots() {
@@ -166,7 +190,7 @@ export class Globe {
     this.dotsMat = new THREE.ShaderMaterial({
       vertexShader: dotsVert, fragmentShader: dotsFrag,
       uniforms: {
-        uSize: { value: bp.isMobile() ? 3.4 : 3.0 },
+        uSize: { value: bp.isMobile() ? 3.0 : 2.6 },
         uPixelRatio: { value: this.renderer.getPixelRatio() },
         uColor: { value: COLOR_FRONT },
         uBack: { value: 0.15 },
@@ -319,6 +343,7 @@ export class Globe {
     this.opacity.v = v;
     this.sphereMat.uniforms.uOpacity.value = v;
     this.dotsMat.uniforms.uOpacity.value = v;
+    this.atmoMat.uniforms.uOpacity.value = v;
     this.arcs.forEach((a) => (a.mat.uniforms.uOpacity.value = v));
   }
 

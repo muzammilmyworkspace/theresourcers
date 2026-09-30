@@ -1,4 +1,4 @@
-/* Plane, partner wordmarks and insight covers — all code-generated. */
+/* Plane, partner wordmarks and insight covers, all code-generated. */
 import { containerYard } from './art.js';
 
 /** top-down cargo plane, nose pointing right (viewBox 1000×900) */
@@ -88,4 +88,53 @@ export function insightCover(i) {
     <circle cx="80" cy="330" r="8" fill="${dark ? '#fff' : a}"/>
     <text x="28" y="462" font-family="JetBrains Mono, monospace" font-size="16" letter-spacing="3" fill="${dark ? '#fff' : '#0016cb'}" opacity=".85">${labels[i]}</text>
   </svg>`;
+}
+
+/** stylised studio portrait (head + shoulders), no real people */
+export function portrait(seed = 1) {
+  const P = [
+    { skin: '#c68a64', hair: '#1c1612', shirt: '#1f2a44', bg: ['#3a3f47', '#1d2026'], long: true },
+    { skin: '#e2b896', hair: '#6b4a2f', shirt: '#2d2f33', bg: ['#6e6a62', '#34322e'], long: false },
+    { skin: '#a8714f', hair: '#120e0c', shirt: '#e9e6df', bg: ['#4a4f58', '#22252b'], long: true },
+    { skin: '#dcae88', hair: '#2a2420', shirt: '#26323f', bg: ['#586070', '#2a2f38'], long: false, beard: true },
+  ][(seed - 1) % 4];
+  const hairTop = P.long
+    ? `<path d="M26 46c0-20 14-30 24-30s24 10 24 30v30c-6-2-8-12-8-22-6 4-26 4-32 0 0 10-2 20-8 22z" fill="${P.hair}"/>`
+    : `<path d="M30 44c0-17 10-26 20-26s20 9 20 26c-3-7-9-10-20-10s-17 3-20 10z" fill="${P.hair}"/>`;
+  return `<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <defs>
+      <radialGradient id="pb${seed}" cx=".35" cy=".3" r=".9"><stop offset="0" stop-color="${P.bg[0]}"/><stop offset="1" stop-color="${P.bg[1]}"/></radialGradient>
+      <radialGradient id="pf${seed}" cx=".38" cy=".35" r=".75"><stop offset="0" stop-color="#fff" stop-opacity=".22"/><stop offset="1" stop-color="#000" stop-opacity=".18"/></radialGradient>
+      <filter id="ps${seed}"><feGaussianBlur stdDeviation=".6"/></filter>
+    </defs>
+    <rect width="100" height="100" fill="url(#pb${seed})"/>
+    <g filter="url(#ps${seed})">
+      <path d="M14 100c2-18 16-26 36-26s34 8 36 26z" fill="${P.shirt}"/>
+      <path d="M42 70h16v10c-3 3-13 3-16 0z" fill="${P.skin}"/>
+      <path d="M40 76l10 10 10-10" fill="none" stroke="#fff" stroke-opacity=".25" stroke-width="1.5"/>
+      ${P.long ? hairTop : ''}
+      <ellipse cx="50" cy="48" rx="15.5" ry="19" fill="${P.skin}"/>
+      <ellipse cx="50" cy="48" rx="15.5" ry="19" fill="url(#pf${seed})"/>
+      ${P.long ? '' : hairTop}
+      ${P.beard ? `<path d="M36 50c2 14 8 18 14 18s12-4 14-18c-3 6-8 8-14 8s-11-2-14-8z" fill="${P.hair}" opacity=".85"/>` : ''}
+      <ellipse cx="44" cy="47" rx="1.6" ry="1.1" fill="#1a1412"/><ellipse cx="56" cy="47" rx="1.6" ry="1.1" fill="#1a1412"/>
+      <path d="M41 43.5q3-1.6 6 0M53 43.5q3-1.6 6 0" stroke="${P.hair}" stroke-width="1.1" fill="none"/>
+      <path d="M46 58q4 2.4 8 0" stroke="#7a3f33" stroke-width="1.1" fill="none"/>
+    </g>
+  </svg>`;
+}
+
+/** soft cloud bank for the sky behind the plane (data URL) */
+export function cloudBank() {
+  let blobs = '';
+  let s = 9;
+  const r = () => ((s = (s * 16807) % 2147483647) - 1) / 2147483646;
+  for (let i = 0; i < 70; i++) {
+    const x = 40 + r() * 60, y = r() * 100, rad = 3 + r() * 9;
+    if (y > 20 && y < 60 && x < 70) continue;
+    blobs += `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${rad.toFixed(1)}" fill="#fff" opacity="${(0.5 + r() * 0.5).toFixed(2)}"/>`;
+  }
+  const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" preserveAspectRatio="none" width="800" height="800">
+    <filter id="c" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="3"/></filter><g filter="url(#c)">${blobs}</g></svg>`;
+  return `url("data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}")`;
 }

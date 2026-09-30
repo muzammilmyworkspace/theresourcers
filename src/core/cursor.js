@@ -37,6 +37,10 @@ class Cursor {
     gsap.set(this.main, { xPercent: -50, yPercent: -50 });
     this.setX = gsap.quickSetter(this.main, 'x', 'px');
     this.setY = gsap.quickSetter(this.main, 'y', 'px');
+    this.halo = $('.cursor-halo', this.root);
+    this.hX = gsap.quickSetter(this.halo, 'x', 'px');
+    this.hY = gsap.quickSetter(this.halo, 'y', 'px');
+    this.hpos = { x: -200, y: -200 };
 
     window.addEventListener('mousemove', this.onMove, { passive: true });
     window.addEventListener('mousedown', () => this.root.classList.add('is-down'));
@@ -66,6 +70,10 @@ class Cursor {
     this.pos.y += (this.mouse.y - this.pos.y) * 0.15;
     this.setX(this.pos.x);
     this.setY(this.pos.y);
+    this.hpos.x += (this.mouse.x - this.hpos.x) * 0.08;
+    this.hpos.y += (this.mouse.y - this.hpos.y) * 0.08;
+    this.hX(this.hpos.x);
+    this.hY(this.hpos.y);
 
     // scroll progress ring
     const limit = smooth.limit || 1;

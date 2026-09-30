@@ -1,6 +1,5 @@
-import { $, $$, bp } from '../core/helpers.js';
+import { $, $$ } from '../core/helpers.js';
 import { fill, fadeUp, line, clip, revealGroup, countUp } from '../core/reveal.js';
-import { containerYard } from '../core/art.js';
 
 export class Intro {
   constructor(root = $('.home-intro')) {
@@ -11,43 +10,30 @@ export class Intro {
     const root = this.root;
     const q = (s) => $(s, root);
 
-    const art = q('[data-art="yard"]');
-    if (art) art.innerHTML = containerYard({ width: 800, height: 920, seed: 11 });
-
     revealGroup({
-      trigger: q('.home-intro-top'),
+      trigger: q('.home-intro-grid'),
+      start: 'top 70%',
       items: [
-        line(q('.home-intro-label-line')),
-        fill(q('.home-intro-label .txt-anim'), { at: 0 }),
-        fill(q('.home-intro-title'), { at: 0.1 }),
+        fill(q('.home-intro-title')),
+        clip(q('.home-intro-thumb'), { radius: 0, at: 0.2 }),
+        fadeUp(q('.home-intro-cap'), { y: 1, at: 0.9 }),
+        fill($$('.home-intro-desc', root), { at: 0.25 }),
+        fadeUp(q('.home-intro-btn'), { at: 0.7 }),
+        fill(q('.home-intro-stats-label .txt-anim'), { at: 0.6 }),
       ],
     });
 
-    revealGroup({
-      trigger: q('.home-intro-main'),
-      start: 'top 80%',
-      stagger: 0.08,
-      items: [
-        clip(q('.home-intro-thumb')),
-        fadeUp(q('.home-intro-thumb-tag'), { y: 1, at: 0.6 }),
-        fill($$('.home-intro-desc', root), { at: 0.15 }),
-        fadeUp(q('.home-intro-btn'), { at: 0.5 }),
-      ],
-    });
-
-    revealGroup({ trigger: q('.home-intro-stats'), items: [fill(q('.home-intro-stats-label .txt-anim'))] });
-
-    const stagger = bp.isMobile() ? 0 : 0.15;
     $$('.home-intro-stats-item', root).forEach((item, i) => {
       revealGroup({
-        trigger: item,
+        trigger: q('.home-intro-stats'),
+        start: 'top 90%',
         items: [
-          line($('.home-intro-stats-item-line', item), { at: i * stagger }),
-          fadeUp($('.home-intro-stats-num', item), { y: 1, at: i * stagger + 0.1 }),
-          fill($('.home-intro-stats-item-desc .txt-anim', item), { at: i * stagger + 0.25 }),
+          fadeUp($('.home-intro-stats-num', item), { y: 2, at: i * 0.12 }),
+          fill($('.home-intro-stats-item-desc .txt-anim', item), { at: 0.2 + i * 0.12 }),
+          line($('.home-intro-stats-item-line', item), { at: 0.3 + i * 0.12 }),
         ],
       });
-      countUp($('[data-count]', item), { trigger: item, duration: 1.2 });
+      countUp($('[data-count]', item), { trigger: q('.home-intro-stats'), start: 'top 90%', duration: 1.4 });
     });
   }
 }

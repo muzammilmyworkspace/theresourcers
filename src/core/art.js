@@ -87,3 +87,34 @@ export function containerYard({ width = 800, height = 1000, seed = 7 } = {}) {
     <g stroke="#ffffff" stroke-opacity=".5" stroke-width="3" stroke-dasharray="40 30"><line x1="0" y1="${ground + (height - ground) * 0.5}" x2="${width}" y2="${ground + (height - ground) * 0.5}"/></g>
   </svg>`;
 }
+
+/** aerial view of winding elevated highways with traffic (small intro photo) */
+export function aerialRoads({ width = 488, height = 308, seed = 4 } = {}) {
+  const r = rng(seed);
+  let trees = '';
+  for (let i = 0; i < 260; i++) {
+    const x = r() * width, y = r() * height, rad = 3 + r() * 9;
+    const g = 40 + Math.floor(r() * 50);
+    trees += `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="${rad.toFixed(1)}" fill="rgb(${g - 10},${g + 25},${g - 15})"/>`;
+  }
+  const roads = [0, 1, 2].map((k) => {
+    const x0 = 70 + k * 150;
+    return `M${x0} -20 C${x0 + 120} 60 ${x0 - 110} 110 ${x0 + 10} 170 S${x0 + 130} 270 ${x0 - 10} 330`;
+  });
+  let cars = '';
+  roads.forEach((d, k) => {
+    for (let i = 0; i < 9; i++) {
+      const col = ['#f4f4f4', '#d7dbe3', '#1b1b1f', '#c53b2b', '#e9e2cf'][Math.floor(r() * 5)];
+      cars += `<rect width="7" height="4" rx="1" fill="${col}"><animateMotion dur="${9 + k * 2 + r() * 4}s" begin="-${(r() * 12).toFixed(1)}s" repeatCount="indefinite" rotate="auto" path="${d}"/></rect>`;
+    }
+  });
+  return `<svg viewBox="0 0 ${width} ${height}" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Aerial view of highways">
+    <rect width="100%" height="100%" fill="#34402f"/>
+    <g opacity=".95">${trees}</g>
+    ${roads.map((d) => `<path d="${d}" fill="none" stroke="#1e211e" stroke-opacity=".35" stroke-width="40" transform="translate(6 8)"/>`).join('')}
+    ${roads.map((d) => `<path d="${d}" fill="none" stroke="#9a9c98" stroke-width="30"/><path d="${d}" fill="none" stroke="#c9cbc6" stroke-width="30" stroke-dasharray="1 7" opacity=".25"/><path d="${d}" fill="none" stroke="#eceae2" stroke-width="1.2" stroke-dasharray="8 8"/>`).join('')}
+    ${cars}
+    <rect width="100%" height="100%" fill="url(#vig${seed})"/>
+    <defs><radialGradient id="vig${seed}"><stop offset=".6" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity=".35"/></radialGradient></defs>
+  </svg>`;
+}
