@@ -1,92 +1,58 @@
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { $, $$, bp } from '../core/helpers.js';
-import { portrait, cloudBank } from '../core/art2.js';
+import { portrait } from '../core/art2.js';
+import { updateSky } from '../core/sky.js';
 
 /**
- * A 3D jet crosses the sky; the white sheet opens behind its nose (chevron
- * clip follows the plane), the jet settles at the right and the client
- * stories scroll up beneath it, then it flies off.
+ * The jet crosses the sky from the left; the sky cover slides away behind its
+ * nose (notched edge), the jet settles on the right while the client stories
+ * scroll beneath it, then it climbs away. Everything is transform-only.
  */
 export class Testi {
   constructor(root = $('.home-testi')) {
     this.root = root;
   }
 
-  async init() {
+  init() {
     const root = this.root;
     if (!root) return;
     const q = (s) => $(s, root);
     $$('.testi-photo', root).forEach((el) => (el.innerHTML = portrait(+el.dataset.face)));
-    q('.testi-sky').style.setProperty('--clouds', cloudBank());
 
-    const { PlaneScene } = await import('../webgl/PlaneScene.js');
-    if (this.dead) return;
-    try {
-      this.plane = new PlaneScene(q('.testi-plane'));
-      this.plane.init();
-    } catch (err) {
-      console.warn('Plane disabled:', err);
-    }
-    this.build();
-    ScrollTrigger.refresh();
-  }
-
-  build() {
-    const root = this.root;
-    const q = (s) => $(s, root);
-    const list = q('.testi-list');
-    const P = this.plane?.state || {};
+    const plane = q('.testi-plane'), cover = q('.testi-cover'), sky = q('.testi-cover .testi-sky'), list = q('.testi-list');
     const mobile = bp.isMobile();
-    // plane x in world units: screen spans ±11; nose sits ~5 units ahead of centre
-    const noseToWipe = () => {
-      const span = this.plane?.span || 22;
-      return ((P.x + 5 * (P.scale || 1)) / span + 0.5) * 100 - 4;   // vw of the nose, minus the chevron depth
-    };
+    const P = { x: -60, y: 0, r: 0, s: 1 };           // plane: left edge in vw, y in vh, bank deg, scale
+    const planeW = mobile ? 90 : 52;                   // matches CSS width (vw)
+    const noseVw = () => P.x + planeW * 0.96;          // nose sits at ~96% of the image width
 
-    const tl = gsap.timeline({
-      defaults: { ease: 'none' },
-      onUpdate: () => sync(),
-    });
     const sync = () => {
-      this.plane?.apply();
-      root.style.setProperty('--wipe', wipeAt(tl.time()).toFixed(2));
+      const vw = window.innerWidth / 100, vh = window.innerHeight / 100;
+      plane.style.transform = `translate3d(${(P.x * vw).toFixed(1)}px, calc(-50% + ${(P.y * vh).toFixed(1)}px), 0) rotate(${P.r.toFixed(2)}deg) scale(${P.s.toFixed(3)})`;
+      const cx = Math.max(-12, noseVw() - 4) * vw;     // cover's notch trails the nose slightly
+      cover.style.transform = `translate3d(${cx.toFixed(1)}px, 0, 0)`;
+      sky.__skyX = cx;
+      updateSky();
     };
-    Object.assign(P, { x: -24, z: mobile ? -2 : 0.5, scale: mobile ? 0.55 : 1, bank: 0.12, yaw: 0.04 });
 
-    const noseVw = (x) => ((x + 5 * (P.scale || 1)) / 22 + 0.5) * 100 - 4;
-    const x0 = -24, x1 = mobile ? 16 : 6.5, x2 = mobile ? 17 : 7.5, z0 = P.z, z1 = mobile ? -1.5 : 0.2;
-    tl.fromTo(P, { x: x0, bank: 0.12, yaw: 0.04 }, { x: x1, bank: 0, yaw: 0, duration: 3, ease: 'power2.out', immediateRender: false }, 0)
-      // content scrolls under the parked plane
-      .fromTo(list, { y: () => window.innerHeight * 0.35 }, { y: () => -(list.scrollHeight - window.innerHeight * 0.9), duration: 7 }, 1.2)
-      .fromTo(P, { x: x1, z: z0 }, { x: x2, z: z1, duration: 6.2, ease: 'sine.inOut', immediateRender: false }, 3)
-      // fly off
-      .fromTo(P, { x: x2, bank: 0 }, { x: 34, bank: -0.1, duration: 2, ease: 'power2.in', immediateRender: false }, 9.2);
-    // wipe edge follows the nose, computed from time so it can never drift
-    const out = gsap.parseEase('power2.out'), inn = gsap.parseEase('power2.in');
-    const lerp = (a, b, k) => a + (b - a) * k;
-    function wipeAt(t) {
-      if (t < 3) return lerp(noseVw(x0), noseVw(x1), out(t / 3));
-      if (t < 9.2) return Math.max(noseVw(x1), 101);
-      return lerp(Math.max(noseVw(x1), 101), noseVw(34), inn(Math.min(1, (t - 9.2) / 2)));
-    }
+    const tl = gsap.timeline({ defaults: { ease: 'none' }, onUpdate: sync });
+    tl.fromTo(P, { x: -60, y: 6, r: -4, s: 0.94 }, { x: mobile ? 115 : 44, y: 0, r: 0, s: 1, duration: 3, ease: 'power2.out', immediateRender: false }, 0)
+      .fromTo(list, { y: () => window.innerHeight * 0.35 }, { y: () => -(list.scrollHeight - window.innerHeight * 0.9), duration: 7, immediateRender: false }, 1.2)
+      .fromTo(P, { x: mobile ? 115 : 44, y: 0 }, { x: mobile ? 118 : 47, y: -3, duration: 6.2, ease: 'sine.inOut', immediateRender: false }, 3)
+      .fromTo(P, { x: mobile ? 118 : 47, y: -3, r: 0, s: 1 }, { x: 120, y: -22, r: -6, s: 0.92, duration: 2, ease: 'power2.in', immediateRender: false }, 9.2);
 
     ScrollTrigger.create({
       trigger: q('.testi-scroll'),
       start: 'top top',
       end: 'bottom bottom',
-      scrub: bp.isDesktop() ? 0.8 : true,
+      scrub: bp.isDesktop() ? 0.6 : true,
       animation: tl,
       invalidateOnRefresh: true,
-      onRefresh: () => sync(),
+      onRefresh: sync,
     });
     tl.progress(0.0001).progress(0);
     sync();
-    this.tl = tl;
   }
 
-  destroy() {
-    this.dead = true;
-    this.plane?.destroy();
-  }
+  destroy() {}
 }

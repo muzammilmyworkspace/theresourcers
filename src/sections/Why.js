@@ -2,12 +2,11 @@ import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { $, $$, bp, reducedMotion } from '../core/helpers.js';
 import { cloud, waterTexture, wakeSvg } from '../core/shipArt.js';
-import { cloudBank } from '../core/art2.js';
 
 // [left%, top%, width vw, height vh, start scale]
 const WALL = [
-  [-20, 40, 95, 62, 8], [30, 48, 95, 62, 5], [-12, -12, 85, 58, 5], [40, -8, 80, 56, 2],
-  [8, 18, 85, 62, 5], [50, 22, 70, 56, 4], [-8, 64, 115, 58, 5],
+  [-20, 40, 95, 62, 2.2], [30, 48, 95, 62, 1.8], [-12, -12, 85, 58, 1.8], [40, -8, 80, 56, 1.5],
+  [8, 18, 85, 62, 1.8], [50, 22, 70, 56, 1.6], [-8, 64, 115, 58, 1.8],
 ];
 const ORDER = [1, 6, 0, 2, 4, 3, 5];
 
@@ -44,6 +43,10 @@ export class Why {
     const ship = $('.why-ship', root);
     ship.style.display = 'block';
     $('.why-ship-inner', root).innerHTML = '<img src="/img/ship-top.webp" alt="" />';
+    import('../webgl/shipTexture.js').then(({ buildShipCanvas }) => buildShipCanvas()).then((c) => {
+      const im = $('.why-ship-inner img', root);
+      if (im) im.src = c.toDataURL('image/webp', 0.92);
+    });
     ship.insertAdjacentHTML('afterbegin', wakeSvg());
     if (!reducedMotion()) {
       this.bobTl = gsap.timeline({ repeat: -1, yoyo: true, defaults: { ease: 'sine.inOut' } })
@@ -132,7 +135,6 @@ export class Why {
       at += k === 0 ? 0.2 : 0.15;
     });
     // end on a broken cloud deck over blue sky — the jet section picks up from here
-    q('.why-cloud-bg').style.setProperty('--clouds', cloudBank());
     tl.to(q('.why-cloud-bg'), { opacity: 1, duration: 1.2, ease: 'cinematicSmooth' }, 8.6)
       .to(this.wall, { opacity: 0, duration: 0.8, ease: 'power1.in' }, 9.6)
       .set({}, {}, 10.6);
@@ -141,7 +143,7 @@ export class Why {
       trigger: q('.why-scroll'),
       start: 'top top',
       end: 'bottom bottom',
-      scrub: bp.isDesktop() ? 0.8 : true,
+      scrub: bp.isDesktop() ? 0.6 : true,
       animation: tl,
       invalidateOnRefresh: true,
       onRefresh: () => { this.ocean?.setHeight(this.cam.h); fadeRef?.(); },
@@ -162,7 +164,11 @@ export class Why {
       });
     };
     fadeRef = fade;
-    tl.eventCallback('onUpdate', () => { this.ocean?.setHeight(this.cam.h); fade(); });
+    tl.eventCallback('onUpdate', () => {
+      this.ocean?.setHeight(this.cam.h);
+      if (this.ocean) this.ocean.hold = tl.time() > 9.85;   // sky fully covers the sea — stop rendering it
+      fade();
+    });
     fade();
     this.tl = tl;
   }

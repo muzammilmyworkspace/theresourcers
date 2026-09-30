@@ -22,6 +22,7 @@ import { Loader } from './core/loader.js';
 import { transition } from './core/transition.js';
 import { initTextScramble } from './core/textScramble.js';
 import { initWaves } from './core/waves.js';
+import { initSky } from './core/sky.js';
 import { Hero } from './sections/Hero.js';
 import { Intro } from './sections/Intro.js';
 import { Service } from './sections/Service.js';
@@ -64,6 +65,7 @@ function mount(container) {
   initCta($('.home-cta', container));
   initTextScramble(container);
   initWaves(container);
+  initSky(container);
 }
 
 function unmount() {

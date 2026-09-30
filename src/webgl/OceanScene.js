@@ -2,6 +2,7 @@ import * as THREE from 'three';
 import { gsap } from 'gsap';
 import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
 import { WakeSimulation } from './WakeSimulation.js';
+import { buildShipCanvas } from './shipTexture.js';
 
 /**
  * Top-down real-time ocean.
@@ -230,13 +231,20 @@ export class OceanScene {
     sun.position.set(-0.08, 53.3, 26);
     this.scene.add(sun, new THREE.HemisphereLight('#cfe3ff', '#0a2146', 0.7));
     // photographed container ship (bow up), sized to the wake simulation's hull
-    const tex = new THREE.TextureLoader().load('/img/ship-top.webp', () => (this.dirty = true));
-    tex.colorSpace = THREE.SRGBColorSpace;
-    tex.anisotropy = 8;
     this.ship = new THREE.Mesh(
       new THREE.PlaneGeometry(SHIP_L * (255 / 1299), SHIP_L),
-      new THREE.MeshBasicMaterial({ map: tex, transparent: true, depthWrite: false })
+      new THREE.MeshBasicMaterial({ transparent: true, depthWrite: false, opacity: 0 })
     );
+    buildShipCanvas().then((c) => {
+      const tex = new THREE.CanvasTexture(c);
+      tex.colorSpace = THREE.SRGBColorSpace;
+      tex.anisotropy = this.renderer.capabilities.getMaxAnisotropy();
+      tex.generateMipmaps = true;
+      tex.minFilter = THREE.LinearMipmapLinearFilter;
+      this.ship.material.map = tex;
+      this.ship.material.opacity = 1;
+      this.ship.material.needsUpdate = true;
+    });
     this.ship.rotation.x = -Math.PI / 2;
     this.ship.position.y = 0.3;
     this.scene.add(this.ship);
@@ -290,7 +298,7 @@ export class OceanScene {
 
   tick = () => {
     const dt = this.clock.getDelta();
-    if (!this.visible) return;
+    if (!this.visible || this.hold) return;
     this.wake.uniforms.uSpeed.value = this.controls.wakeSpeed;
     this.wake.uniforms.uIntensity.value = this.controls.wakeIntensity;
     this.wake.update(dt);

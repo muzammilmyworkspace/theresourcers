@@ -5,16 +5,19 @@
 .testi-scroll { position: relative; height: 420vh; }
 .testi-stage { position: sticky; top: 0; height: 100vh; height: 100svh; overflow: hidden; background: #fff; }
 .testi-sky {
-  position: absolute; inset: 0;
+  position: absolute; left: 0; top: 0; width: 100vw; height: 100vh;
   background: radial-gradient(40% 30% at 70% 70%, #ffffffd9, transparent 70%), radial-gradient(35% 25% at 85% 25%, #ffffffb3, transparent 70%),
     linear-gradient(160deg, #1b3aa8 0%, #2a4fc9 45%, #6f8fe0 100%);
 }
-.testi-sky::after { content: ""; position: absolute; inset: 0; background: var(--clouds) center / cover no-repeat; opacity: .9; }
-.testi-sheet {
-  --x: calc(var(--wipe) * 1vw);
-  position: absolute; inset: 0; background: #fff;
-  clip-path: polygon(0 0, var(--x) 0, calc(var(--x) + 9vw) 50%, var(--x) 100%, 0 100%);
+.testi-sky::after { content: ""; position: absolute; inset: 0; background: var(--sky-clouds) center / cover no-repeat; opacity: .9; }
+.testi-sheet { position: absolute; inset: 0; background: #fff; }
+/* sky cover slides right; its notched left edge follows the plane's nose (transform only, no repaint) */
+.testi-cover {
+  position: absolute; top: 0; bottom: 0; left: 0; width: 112vw; z-index: 2; overflow: hidden;
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 0 100%, 9vw 50%);
+  will-change: transform; pointer-events: none;
 }
+.testi-cover .testi-sky { width: 100vw; will-change: transform; }
 .testi-list-wrap { position: absolute; inset: 0; overflow: hidden; }
 .testi-list { position: absolute; left: 0; right: 0; top: 0; will-change: transform; padding-bottom: 30vh; }
 .testi-head { display: grid; grid-template-columns: 1fr 26rem; align-items: end; gap: 4rem; padding: calc(var(--header-h) + 4vh) 0 8rem; }
@@ -30,7 +33,11 @@
 .testi-name { font-family: var(--font-heading); font-weight: 700; text-transform: uppercase; font-size: 1.3rem; margin-top: .8rem; }
 .testi-role { font-size: 1.05rem; line-height: 1.35; color: var(--content-sub); }
 .testi-quote { grid-column: 9 / span 8; font-size: 1.9rem; line-height: 1.32; font-weight: 500; letter-spacing: -.01em; color: var(--content-main); }
-.testi-plane { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 3; pointer-events: none; }
+.testi-plane { position: absolute; left: 0; top: 50%; width: 52vw; z-index: 3; pointer-events: none; will-change: transform; }
+.testi-plane img { display: block; width: 100%; height: auto; }
+.testi-plane-shadow { position: absolute; left: 0; top: 0; filter: brightness(0) blur(10px); opacity: .18; transform: translate(4%, 26%) scale(.9); }
+.testi-plane-img { position: relative; }
+@media (max-width: 767px) { .testi-plane { width: 90vw; } }
 @media (max-width: 991px) {
   .testi-who { grid-column: 1 / span 5; }
   .testi-quote { grid-column: 7 / span 10; }
@@ -269,4 +276,3 @@
   .footer-bot { flex-direction: column; }
 }
 
-.testi-sky, .testi-sky::after { background-attachment: fixed !important; }

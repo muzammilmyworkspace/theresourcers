@@ -141,3 +141,17 @@
   .svc-mobile .svc-feat-ic { color: #fff; }
   .svc-mobile .svc-feat-desc { color: #ffffffb3; }
 }
+
+/* our wordmark painted on the container side */
+.svc-cargo-logo {
+  position: absolute; left: 50%; top: 50%; transform: translate(-50%, -50%);
+  display: inline-flex; align-items: center; gap: .35em;
+  font-family: var(--font-heading); font-weight: 800; font-stretch: 115%;
+  font-size: calc(var(--ch, 100px) * 0.2); letter-spacing: .02em; line-height: 1;
+  color: #111; white-space: nowrap; mix-blend-mode: multiply; opacity: .92;
+}
+.svc-cargo-logo b {
+  display: inline-grid; place-items: center; width: 1.6em; height: 1.6em; border-radius: 50%;
+  background: #111; color: #fff; font-size: .62em; letter-spacing: 0;
+}
+.svc-road-top { transform-origin: 50% 40%; }

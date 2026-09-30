@@ -4,6 +4,7 @@ import { MotionPathPlugin } from 'gsap/MotionPathPlugin';
 import { $, $$, bp } from '../core/helpers.js';
 import { fill, fadeUp, revealGroup } from '../core/reveal.js';
 import { smooth } from '../core/lenis.js';
+import { SHIP_IMG, HANDOFF_COL } from '../webgl/shipTexture.js';
 
 gsap.registerPlugin(MotionPathPlugin);
 
@@ -54,6 +55,7 @@ export class Service {
       return w;
     });
 
+    this.brandTopTruck();
     const imgs = $$('img', q('.svc-scene'));
     Promise.all(imgs.map((i) => (i.complete ? 0 : new Promise((r) => { i.onload = r; i.onerror = r; })))).then(() => {
       if (this.dead) return;
@@ -62,6 +64,30 @@ export class Service {
       this.buildReveals();
       ScrollTrigger.refresh();
     });
+  }
+
+  /** paint our wordmark on the roof of the top-down truck's container */
+  brandTopTruck() {
+    const img = this.el.truckTop;
+    const src = new Image();
+    src.onload = async () => {
+      try { await document.fonts.load('800 40px Saira'); } catch { /* fallback */ }
+      const c = document.createElement('canvas');
+      c.width = src.naturalWidth; c.height = src.naturalHeight;
+      const ctx = c.getContext('2d');
+      ctx.drawImage(src, 0, 0);
+      ctx.save();
+      ctx.translate(c.width / 2, c.height * 0.6);
+      ctx.rotate(Math.PI / 2);
+      ctx.globalCompositeOperation = 'multiply';
+      ctx.fillStyle = '#111';
+      ctx.font = `800 ${Math.round(c.width * 0.26)}px Saira, Arial`;
+      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.fillText('THE SOURCERS', 0, 0, c.height * 0.55);
+      ctx.restore();
+      img.src = c.toDataURL('image/webp', 0.92);
+    };
+    src.src = img.getAttribute('src');
   }
 
   /* ---------------- geometry (px) ---------------- */
@@ -90,6 +116,7 @@ export class Service {
     gsap.set(e.boxes[0], { x: L.stackX, y: L.ground - L.CH, width: L.CW, height: L.CH });
     gsap.set(e.boxes[1], { x: L.stackX, y: L.ground - L.CH * 2, width: L.CW, height: L.CH });
     gsap.set(e.cargo, { width: L.CW, height: L.CH });
+    e.cargo.style.setProperty('--ch', `${L.CH}px`);
     gsap.set(e.spreader, { width: L.CW * 1.02, height: L.sH, x: -L.CW * 0.01 });
     gsap.set(e.cables[0], { left: L.CW * 0.22 });
     gsap.set(e.cables[1], { left: L.CW * 0.78 });
@@ -110,10 +137,14 @@ export class Service {
     const roadW = L.vw * (this.mobile ? 0.36 : 0.145);
     const H = L.vh;
     const cx = L.vw * 0.5;
-    const tw = roadW * 0.42, tl = tw * (1288 / 239);
+    // the truck's container is exactly one ship container wide and sits on that column
+    const shipPx = roadW * 2.2;
+    const colPx = ((HANDOFF_COL.x1 - HANDOFF_COL.x0) / SHIP_IMG.w) * shipPx;
+    const colX = L.vw * 0.5 + (((HANDOFF_COL.x0 + HANDOFF_COL.x1) / 2) / SHIP_IMG.w - 0.5) * shipPx;
+    const tw = colPx / 0.82, tl = tw * (1288 / 239);
     const endY = H + tl * 0.18;                       // truck ends with its cab below the edge
     // straight down the centre, like the reference
-    const d = `M ${cx} ${-tl * 0.6} L ${cx} ${endY}`;
+    const d = `M ${colX} ${-tl * 0.6} L ${colX} ${endY}`;
     const dRoad = `M ${cx} ${-400} L ${cx} ${H + 400}`;
     e.roadTop.style.height = `${H}px`;
     e.roadTop.style.top = '0px';
@@ -138,7 +169,7 @@ export class Service {
     const e = this.el;
 
     this.place();
-    const S = (this.S = { rigX: 0, rigY: 0, cargoX: 0, cargoY: 0, truckX: 0, spin: 0, zoom: 0, p: 0 });
+    const S = (this.S = { rigX: 0, rigY: 0, cargoX: 0, cargoY: 0, truckX: 0, spin: 0, zoom: 0, p: 0, drop: 0 });
     const L = () => this.L;
     const lift = () => L().CH * 1.5;
 
@@ -164,9 +195,12 @@ export class Service {
         .fromTo([track, bigword, q('.svc-band-btn')], { opacity: 0 }, { opacity: 1, duration: 0.7, ease: 'power2.out', immediateRender: false }, 8.3)
         .fromTo(track, { x: 0 }, { x: () => -(track.scrollWidth - window.innerWidth), duration: 7, ease: 'none', immediateRender: false }, 8.8)
         .fromTo(bigword, { x: 0 }, { x: () => -bigword.scrollWidth * 0.45, duration: 7.5, ease: 'none', immediateRender: false }, 8.3)
-        .fromTo([track, bigword, q('.svc-band-btn'), band, e.world], { opacity: 1 }, { opacity: 0, duration: 0.8, ease: 'power2.in', immediateRender: false }, 15.8)
-        .fromTo(e.roadTop, { opacity: 0 }, { opacity: 1, duration: 0.8, immediateRender: false }, 16.1)
-        .fromTo(S, { p: 0 }, { p: 1, duration: 13.4, ease: 'sine.inOut', immediateRender: false }, 16.3)
+        // hand-off: the side-view truck accelerates out right while the top-down road rises in
+        .fromTo(S, { truckX: () => L().truckX }, { truckX: () => L().truckX + L().vw * 4.2, duration: 1.2, ease: 'power2.in', immediateRender: false }, 15.0)
+        .fromTo([track, bigword, q('.svc-band-btn')], { opacity: 1 }, { opacity: 0, duration: 0.6, ease: 'power2.in', immediateRender: false }, 15.3)
+        .fromTo(S, { drop: 0 }, { drop: 1, duration: 1.0, ease: 'power2.in', immediateRender: false }, 15.8)
+        .fromTo(e.roadTop, { opacity: 0, scale: 1.12 }, { opacity: 1, scale: 1, duration: 1.1, ease: 'power2.out', immediateRender: false }, 16.0)
+        .fromTo(S, { p: 0 }, { p: 1, duration: 13.6, ease: 'sine.inOut', immediateRender: false }, 16.1)
         .fromTo(rel, { opacity: 0 }, { opacity: 1, duration: 0.8, ease: 'power2.out', immediateRender: false }, 16.2)
         .fromTo(feats, { y: 0 }, { y: () => -(feats.scrollHeight - window.innerHeight * 0.9), duration: 12, ease: 'none', immediateRender: false }, 17.2)
         .set({}, {}, 30);
@@ -176,6 +210,7 @@ export class Service {
     const frame = () => {
       const t = tl.time(), Lx = this.L;
       gsap.set(e.rig, { x: S.rigX });
+      e.rig.style.visibility = t > 6.9 ? 'hidden' : '';
       e.cables.forEach((c) => (c.style.height = `${Math.max(0, S.rigY)}px`));
       gsap.set(e.spreader, { y: S.rigY });
       gsap.set(e.truck, { x: S.truckX });
@@ -191,10 +226,11 @@ export class Service {
         const k = 1 - 0.62 * z;
         const g = Lx.ground, gTarget = Lx.vh * 0.42;
         const cx = Lx.truckX + Lx.TW * 0.5, cxTarget = Lx.vw * 0.26;
-        const tx = (cxTarget - cx * k) * z, ty = (gTarget - g * k) * z;
+        const tx = (cxTarget - cx * k) * z, ty = (gTarget - g * k) * z + S.drop * Lx.vh * 1.1;
         e.world.style.transform = `translate(${tx.toFixed(1)}px, ${ty.toFixed(1)}px) scale(${k.toFixed(4)})`;
         gsap.set(e.boxes, { opacity: 1 - z });
         band.style.setProperty('--horizon', `${(((g + (gTarget - g) * z) / Lx.vh) * 100).toFixed(3)}%`);
+        band.style.transform = S.drop ? `translate3d(0, ${(S.drop * Lx.vh * 1.1).toFixed(1)}px, 0)` : '';
 
         // top-down truck drives the bend and down toward the ship
         const pos = MotionPathPlugin.getPositionOnPath(this.raw, S.p, true);
@@ -212,7 +248,7 @@ export class Service {
       trigger: q('.svc-scroll'),
       start: 'top top',
       end: 'bottom bottom',
-      scrub: bp.isDesktop() ? 0.8 : true,
+      scrub: bp.isDesktop() ? 0.6 : true,
       animation: tl,
       invalidateOnRefresh: true,
       onRefreshInit: () => this.place(),
