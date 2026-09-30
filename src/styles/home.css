@@ -119,3 +119,12 @@
 .home-hero-text-wrap { left: var(--container-pad); pointer-events: auto; }
 .home-hero-canvas { cursor: grab; }
 .home-hero-canvas:active { cursor: grabbing; }
+/* keep the hero headline clear of the header nav on shorter screens */
+@media (min-width: 992px) {
+  .home-hero-title { font-size: min(9rem, 10.5vh); }
+  .home-hero-label { font-size: min(2.2rem, 2.6vh); }
+}
+@media (min-width: 992px) and (max-height: 860px) {
+  .home-hero-title { font-size: 9.4vh; }
+  .home-hero-text-wrap { bottom: 5vh; gap: 1.8rem; }
+}

@@ -23,7 +23,7 @@ export class Testi {
     const plane = q('.testi-plane'), cover = q('.testi-cover'), sky = q('.testi-cover .testi-sky'), list = q('.testi-list');
     const mobile = bp.isMobile();
     const P = { x: -60, y: 0, r: 0, s: 1 };
-    const W = { v: -100 };                             // lets the sky finish clearing while the jet cruises           // plane: left edge in vw, y in vh, bank deg, scale
+    const W = { v: -100 };                             // clears any sky left behind once the jet is past
     const planeW = mobile ? 90 : 52;                   // matches CSS width (vw)
     const noseVw = () => P.x + planeW * 0.96;          // nose sits at ~96% of the image width
 
@@ -37,14 +37,12 @@ export class Testi {
     };
 
     const tl = gsap.timeline({ defaults: { ease: 'none' }, onUpdate: sync });
-    // the jet never stops: fast entry, slow cruise across while stories scroll, then climbs away
-    const cruise0 = mobile ? 100 : 30, cruise1 = mobile ? 112 : 78;
-    tl.fromTo(P, { x: -60, y: 6, r: -4, s: 0.94 }, { x: cruise0, y: 0, r: 0, s: 1, duration: 2.6, ease: 'power2.out', immediateRender: false }, 0)
-      .fromTo(P, { x: cruise0 }, { x: cruise1, duration: 6.6, ease: 'none', immediateRender: false }, 2.6)
-      .fromTo(W, { v: () => noseVw() - 4 }, { v: 115, duration: 1.2, ease: 'power2.inOut', immediateRender: false }, 2.4)
-      .fromTo(P, { y: 0, r: 0 }, { keyframes: { y: [0, -4, 2, -3], r: [0, -1.2, 0.8, -0.6] }, duration: 6.6, ease: 'sine.inOut', immediateRender: false }, 2.6)
-      .fromTo(list, { y: () => window.innerHeight * 0.35 }, { y: () => -(list.scrollHeight - window.innerHeight * 0.9), duration: 7, immediateRender: false }, 1.2)
-      .fromTo(P, { x: cruise1, y: -3, r: -0.6, s: 1 }, { x: 125, y: -22, r: -6, s: 0.92, duration: 2, ease: 'power2.in', immediateRender: false }, 9.2);
+    // one clean pass: the jet sweeps across and out while the sky peels away behind its nose;
+    // the client stories only start moving once the jet has left the screen
+    tl.fromTo(P, { x: -60, y: 6, r: -3, s: 0.96 }, { x: 118, y: -8, r: -1.5, s: 1, duration: 3.4, ease: 'power1.inOut', immediateRender: false }, 0)
+      .fromTo(W, { v: -100 }, { v: 115, duration: 0.6, ease: 'power2.out', immediateRender: false }, 2.9)
+      .fromTo(list, { y: () => window.innerHeight * 0.35 }, { y: () => -(list.scrollHeight - window.innerHeight * 0.9), duration: 6, immediateRender: false }, 2.6)
+      .set({}, {}, 8.6);
 
     ScrollTrigger.create({
       trigger: q('.testi-scroll'),

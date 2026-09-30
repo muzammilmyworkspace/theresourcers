@@ -65,7 +65,7 @@ const sphereFrag = /* glsl */ `
     vec3 warm = vec3(1.0, 0.42, 0.1);
     vec3 cool = vec3(0.12, 0.35, 1.0);
     vec3 rimCol = mix(cool, warm, smoothstep(0.35, 0.9, side));
-    vec3 body = vec3(0.008, 0.008, 0.02) + cool * 0.04 * (1.0 - side);
+    vec3 body = vec3(0.012, 0.018, 0.05) + cool * 0.07 * (1.0 - side);
     vec3 col = body + rimCol * pow(f, 5.0) * 1.15;
     gl_FragColor = vec4(col, uOpacity);
   }`;
@@ -201,6 +201,26 @@ export class Globe {
     const dots = new THREE.Points(geo, this.dotsMat);
     dots.renderOrder = 0;
     this.spin.add(dots);
+
+    // faint ocean grid so the globe never reads as an empty black disc
+    const sea = [];
+    const seaStep = step * 2.8;
+    for (let lat = -76; lat <= 80; lat += seaStep) {
+      const n = Math.max(1, Math.round((360 * Math.cos(THREE.MathUtils.degToRad(lat))) / seaStep));
+      for (let i = 0; i < n; i++) {
+        const lng = -180 + (i * 360) / n;
+        if (!land.isLand(lat, lng)) { const v = toVec(lat, lng, 1); sea.push(v.x, v.y, v.z); }
+      }
+    }
+    const seaGeo = new THREE.BufferGeometry();
+    seaGeo.setAttribute('position', new THREE.Float32BufferAttribute(sea, 3));
+    this.seaMat = this.dotsMat.clone();
+    this.seaMat.uniforms.uColor = { value: new THREE.Color('#4f6bff') };
+    this.seaMat.uniforms.uOpacity = { value: 0.45 };
+    this.seaMat.uniforms.uSize = { value: this.dotsMat.uniforms.uSize.value * 1.3 };
+    const seaDots = new THREE.Points(seaGeo, this.seaMat);
+    seaDots.renderOrder = 0;
+    this.spin.add(seaDots);
   }
 
   buildPins() {
@@ -344,6 +364,7 @@ export class Globe {
     this.sphereMat.uniforms.uOpacity.value = v;
     this.dotsMat.uniforms.uOpacity.value = v;
     this.atmoMat.uniforms.uOpacity.value = v;
+    if (this.seaMat) this.seaMat.uniforms.uOpacity.value = v * 0.45;
     this.arcs.forEach((a) => (a.mat.uniforms.uOpacity.value = v));
   }
 

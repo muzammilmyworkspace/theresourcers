@@ -102,7 +102,8 @@ export class Hero {
     gsap.timeline({
       scrollTrigger: { trigger: this.root, start: 'top top', end: 'bottom top', scrub: 0.8 },
     })
-      .to($('.home-hero-globe', this.root), { filter: 'brightness(0.25)', yPercent: -85, ease: 'none' }, 0)
+      .to($('.home-hero-globe', this.root), { yPercent: -70, scale: 0.92, ease: 'none' }, 0)
+      .to($('.home-hero-globe', this.root), { autoAlpha: 0, ease: 'power1.in', duration: 0.35 }, 0.65)
       .to($('.home-hero-inner', this.root), { yPercent: -18, autoAlpha: 0, ease: 'none' }, 0)
       .to($('.home-hero-stars', this.root), { autoAlpha: 0, ease: 'none' }, 0);
   }
