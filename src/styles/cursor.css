@@ -82,7 +82,7 @@
 .cursor-halo {
   position: absolute; left: 0; top: 0; width: 14rem; height: 14rem; margin: -7rem 0 0 -7rem;
   border-radius: 50%; pointer-events: none;
-  background: radial-gradient(circle, #ff550040 0%, #0016cb1f 40%, transparent 70%);
+  background: radial-gradient(circle, #ff550040 0%, #0058f81f 40%, transparent 70%);
   filter: blur(4px); transition: opacity .3s, transform .35s var(--ease-silk);
 }
 .cursor.has-link .cursor-halo { opacity: .9; }

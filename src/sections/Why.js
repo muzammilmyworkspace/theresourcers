@@ -114,7 +114,8 @@ export class Why {
     // start zoom: ship is ~2.2× the road width above, so the handoff lines up
     const h0 = () => {
       const roadPx = window.innerWidth * 0.145, shipW = 11 * (255 / 1299);
-      return (shipW * window.innerHeight) / (2 * Math.tan((17.5 * Math.PI) / 180) * roadPx * 2.2);
+      // + the ship deck's 0.3 lift above the water, so its on-screen width is exactly roadPx × 2.2
+      return (shipW * window.innerHeight) / (2 * Math.tan((17.5 * Math.PI) / 180) * roadPx * 2.2) + 0.3;
     };
     this.cam.h = h0();
     tl.fromTo(this.cam, { h: h0 }, { h: 150, duration: 7, ease: 'cinematicSilk' }, 0);

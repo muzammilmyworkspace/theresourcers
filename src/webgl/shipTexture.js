@@ -2,7 +2,7 @@ import deck from './shipDeck.json';
 
 /* Container column on the ship that the truck's container lines up with (image px) */
 export const SHIP_IMG = { w: deck.w, h: deck.h };
-export const HANDOFF_COL = { x0: 113, x1: 139 };
+export const HANDOFF_COL = { x0: 114, x1: 138 };
 
 const SCALE = 3;
 let cached = null;

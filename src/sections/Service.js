@@ -216,8 +216,7 @@ export class Service {
       // the container rides the truck once it is down
       if (t >= 5.9) gsap.set(e.cargo, { x: S.truckX + (Lx.cargoEnd.x - Lx.truckX), y: Lx.cargoEnd.y });
       else gsap.set(e.cargo, { x: S.cargoX, y: S.cargoY });
-      const rot = `rotate(${S.spin.toFixed(1)}deg)`;
-      this.wheels.forEach((w) => (w.style.transform = rot));
+      this.spinTarget = S.spin;
 
       if (!mobile) {
         // zoom: shrink the world around the truck and lift the ground to 42vh
@@ -242,6 +241,20 @@ export class Service {
         band.style.setProperty('--horizon', `${((Lx.ground / Lx.vh) * 100).toFixed(3)}%`);
       }
     };
+
+    // wheels follow the timeline through a rate-limited ticker: a fast flick of the
+    // scroll would otherwise turn them hundreds of degrees per frame (wagon-wheel strobe).
+    // Whole turns are dropped when far behind; a wheel looks identical after 360°.
+    this.wheelA = S.spin; this.spinTarget = S.spin;
+    let lastRot = '';
+    this.wheelTick = () => {
+      let d = this.spinTarget - this.wheelA;
+      if (Math.abs(d) > 360) { this.wheelA += Math.trunc(d / 360) * 360; d = this.spinTarget - this.wheelA; }
+      this.wheelA += gsap.utils.clamp(-13, 13, d * 0.18);
+      const rot = `rotate(${this.wheelA.toFixed(1)}deg)`;
+      if (rot !== lastRot) { lastRot = rot; this.wheels.forEach((w) => (w.style.transform = rot)); }
+    };
+    gsap.ticker.add(this.wheelTick);
 
     ScrollTrigger.create({
       trigger: q('.svc-scroll'),
@@ -295,5 +308,6 @@ export class Service {
   destroy() {
     this.dead = true;
     if (this.speedTick) gsap.ticker.remove(this.speedTick);
+    if (this.wheelTick) gsap.ticker.remove(this.wheelTick);
   }
 }

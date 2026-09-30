@@ -45,7 +45,9 @@ ul, ol { list-style: none; }
 }
 .heading .tone { display: block; }
 .heading .tone.dim { color: var(--tone-dim); }
-[data-theme="dark"] .heading .tone.dim, .on-dark-bg .heading .tone.dim { color: #ffffff66; }
+[data-theme="dark"] .heading .tone.dim, .on-dark-bg .heading .tone.dim { color: var(--accent); }
+/* light sections: headings in brand blue, second line in orange */
+[data-section="light"] .heading .tone:not(.dim) { color: var(--brand-ink); }
 .h-xl { font-size: 8rem; }
 .h-l  { font-size: 5.6rem; }
 .h-m  { font-size: 4rem; }

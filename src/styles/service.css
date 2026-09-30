@@ -18,6 +18,7 @@
 .svc-box { overflow: hidden; }
 .svc-box::after { content: ""; position: absolute; inset: 0; mix-blend-mode: multiply; -webkit-mask: url(/img/container.webp) center / 100% 100%; mask: url(/img/container.webp) center / 100% 100%; }
 .svc-box.tint-orange::after { background: #d9521b; }
+.svc-box.tint-grey::after { background: #8e939c; }
 .svc-box.tint-navy::after { background: #1b2b5c; }
 .svc-cargo { filter: drop-shadow(0 1.2rem 1.6rem #0002); }
 .svc-rig { width: 1px; height: 1px; }
@@ -155,3 +156,5 @@
   background: #111; color: #fff; font-size: .62em; letter-spacing: 0;
 }
 .svc-road-top { transform-origin: 50% 40%; }
+
+.svc-wheel { will-change: transform; backface-visibility: hidden; }

@@ -222,7 +222,7 @@
 .header.on-scroll .header-inner {
   height: 7.6rem;
   background: #ffffffeb; backdrop-filter: blur(14px) saturate(160%); -webkit-backdrop-filter: blur(14px) saturate(160%);
-  box-shadow: 0 1rem 3rem -1.6rem #0016cb40;
+  box-shadow: 0 1rem 3rem -1.6rem #0058f840;
 }
 .header.on-dark.on-scroll .header-inner { background: #0b0c10e6; box-shadow: 0 1rem 3rem -1.6rem #000c; }
 .header.on-scroll .header-nav {

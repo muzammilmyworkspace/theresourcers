@@ -3,7 +3,7 @@
    Fluid rem: 10px @ 1728px desktop, @ 991px tablet, @ 393px mobile
    ========================================================== */
 :root {
-  --brand: #0016cb;
+  --brand: #0058f8;
   --accent: #ff5500;
   --black: #111111;
   --white: #ffffff;
@@ -28,7 +28,8 @@
   --font-heading: "Saira", Arial, sans-serif;
   --font-body: "Helvetica Neue", Helvetica, Arial, sans-serif;
   --font-mono: "Share Tech Mono", ui-monospace, monospace;
-  --tone-dim: #9b9b9b;
+  --tone-dim: var(--accent);
+  --brand-ink: #0a2fb8;
 
   --ease-silk: cubic-bezier(0.445, 0.05, 0.55, 0.95);
   --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);

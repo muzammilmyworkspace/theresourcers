@@ -19,11 +19,11 @@ export function topPlane() {
     <!-- fuselage -->
     <path d="M40 450 Q40 410 90 404 L860 400 Q960 404 978 450 Q960 496 860 500 L90 496 Q40 490 40 450 Z" fill="#f6f7fa"/>
     <path d="M90 404 L860 400 Q960 404 978 450 L40 450 Q40 410 90 404 Z" fill="#fff"/>
-    <rect x="120" y="446" width="760" height="8" fill="#0016cb"/>
+    <rect x="120" y="446" width="760" height="8" fill="#0058f8"/>
     <path d="M60 444 H200 V456 H60 Z" fill="#ff5500"/>
     ${windows}
     <path d="M905 424 Q950 432 962 450 Q950 468 905 476 Q918 450 905 424 Z" fill="#1b1d26"/>
-    <text x="560" y="428" font-family="Space Grotesk, Arial" font-weight="700" font-size="22" letter-spacing="6" fill="#0016cb">THE SOURCERS</text>
+    <text x="560" y="428" font-family="Space Grotesk, Arial" font-weight="700" font-size="22" letter-spacing="6" fill="#0058f8">THE SOURCERS</text>
   </svg>`;
 }
 
@@ -38,7 +38,7 @@ const MARKS = [
   (c) => `<circle cx="10" cy="16" r="8" fill="${c}"/><circle cx="22" cy="16" r="8" fill="${c}" opacity=".5"/>`,
   (c) => `<path d="M16 3 L28 16 L16 29 L4 16 Z" fill="none" stroke="${c}" stroke-width="3.5"/><circle cx="16" cy="16" r="4" fill="${c}"/>`,
 ];
-const COLORS = ['#0016cb', '#e0301e', '#0a7c86', '#ff5500', '#6b2fd6', '#1b1b1f', '#0f9d58', '#c2185b'];
+const COLORS = ['#0058f8', '#e0301e', '#0a7c86', '#ff5500', '#6b2fd6', '#1b1b1f', '#0f9d58', '#c2185b'];
 const FONTS = [
   ['Space Grotesk, Arial', 700, 0], ['Inter, Arial', 500, 1], ['JetBrains Mono, monospace', 500, 0.5],
   ['Space Grotesk, Arial', 500, 3], ['Georgia, serif', 700, 0], ['Inter, Arial', 700, -0.5],
@@ -63,12 +63,12 @@ export function insightCover(i) {
   if (i === 1) return containerYard({ width: 400, height: 500, seed: 31 });
   if (i === 3) return containerYard({ width: 400, height: 500, seed: 5 });
   const palettes = [
-    ['#0016cb', '#2438e0', '#ff5500'],
+    ['#0058f8', '#2438e0', '#ff5500'],
     null,
     ['#111', '#2a2b31', '#ff5500'],
     null,
-    ['#ff5500', '#ff7a33', '#0016cb'],
-    ['#e9eefc', '#cfdaff', '#0016cb'],
+    ['#ff5500', '#ff7a33', '#0058f8'],
+    ['#e9eefc', '#cfdaff', '#0058f8'],
   ];
   const [a, b, c] = palettes[i];
   const dark = i !== 5;
@@ -86,7 +86,7 @@ export function insightCover(i) {
     ${dots}${arcs}
     <circle cx="300" cy="140" r="12" fill="${c}"/><circle cx="300" cy="140" r="28" fill="none" stroke="${c}" stroke-opacity=".5"/>
     <circle cx="80" cy="330" r="8" fill="${dark ? '#fff' : a}"/>
-    <text x="28" y="462" font-family="JetBrains Mono, monospace" font-size="16" letter-spacing="3" fill="${dark ? '#fff' : '#0016cb'}" opacity=".85">${labels[i]}</text>
+    <text x="28" y="462" font-family="JetBrains Mono, monospace" font-size="16" letter-spacing="3" fill="${dark ? '#fff' : '#0058f8'}" opacity=".85">${labels[i]}</text>
   </svg>`;
 }
 

@@ -84,8 +84,18 @@ export class Footer {
       const off = document.createElement('canvas');
       off.width = W; off.height = H;
       const o = off.getContext('2d');
-      if (!logo.complete || !logo.naturalWidth) { logo.addEventListener('load', build, { once: true }); return; }
-      o.drawImage(logo, (lr.left - r.left) * dpr, (lr.top - r.top) * dpr, lr.width * dpr, lr.height * dpr);
+      const cs = getComputedStyle(logo);
+      o.font = `${cs.fontWeight} ${parseFloat(cs.fontSize) * dpr}px ${cs.fontFamily}`;
+      o.textBaseline = 'alphabetic';
+      if ('letterSpacing' in o) o.letterSpacing = cs.letterSpacing === 'normal' ? '0px' : `${parseFloat(cs.letterSpacing) * dpr}px`;
+      const baseline = (lr.top - r.top + lr.height * 0.86) * dpr;
+      const cx = (lr.left + lr.width / 2 - r.left) * dpr;
+      // brand colours: THE SOUR in white, CERS in orange
+      const txt = logo.textContent.trim(), a = txt.slice(0, -4), b = txt.slice(-4);
+      const wa = o.measureText(a).width, wb = o.measureText(b).width;
+      o.textAlign = 'left';
+      o.fillStyle = '#ffffff'; o.fillText(a, cx - (wa + wb) / 2, baseline);
+      o.fillStyle = '#ff5500'; o.fillText(b, cx - (wa + wb) / 2 + wa, baseline);
       const data = o.getImageData(0, 0, W, H).data;
       const step = Math.round(4 * dpr);
       P = [];

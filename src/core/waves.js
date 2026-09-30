@@ -7,7 +7,7 @@ import { $$, reducedMotion } from './helpers.js';
  * A canvas is appended behind the content; it only animates while visible.
  */
 const THEMES = {
-  light: { fill: ['#e9f0ff', '#dce7ff', '#cfdcff'], line: '#0016cb', lineA: 0.14, bg: null },
+  light: { fill: ['#e9f0ff', '#dce7ff', '#cfdcff'], line: '#0058f8', lineA: 0.14, bg: null },
   dark: { fill: ['#0d1a3d', '#0a1531', '#081027'], line: '#5b7cff', lineA: 0.28, bg: null },
   blue: { fill: ['#2a4fd1', '#1f3fbd', '#1633a8'], line: '#ffffff', lineA: 0.25, bg: null },
 };

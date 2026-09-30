@@ -273,6 +273,7 @@ export class OceanScene {
 
   /** camera height in world units (straight down) */
   setHeight(h) {
+    if (h < 29) this.minH = Math.min(this.minH ?? h, h);
     this.height = h;
     this.camera.position.set(0, h, 0.001);
     this.camera.lookAt(0, 0, 0);
@@ -311,10 +312,12 @@ export class OceanScene {
     const visibleH = 2 * this.height * Math.tan(THREE.MathUtils.degToRad(this.camera.fov / 2));
     u.uPx.value = visibleH / (this.canvas.clientHeight || 1);
 
-    // gentle roll / sway
+    // gentle roll / sway, held still at the hand-off height so the truck's
+    // container lands exactly on its column, easing in as the camera climbs
     const t = u.uTime.value;
-    this.ship.position.x = Math.sin(t * 0.55) * 0.035;
-    this.ship.rotation.z = Math.sin(t * 0.8) * 0.006;
+    const sway = this.minH ? Math.min(1, Math.max(0, (this.height - this.minH) / (this.minH * 1.5))) : 1;
+    this.ship.position.x = Math.sin(t * 0.55) * 0.035 * sway;
+    this.ship.rotation.z = Math.sin(t * 0.8) * 0.006 * sway;
 
     this.renderer.render(this.scene, this.camera);
   };

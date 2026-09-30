@@ -16,7 +16,7 @@ export const PORT = {
 };
 
 const C = { w: 122, h: 44, gap: 2 };
-const COLORS = ['#0016cb', '#ff5500', '#1b1b1f', '#e6e9f0', '#2438e0', '#ff7a33', '#3b3d44', '#c9cfdc'];
+const COLORS = ['#0058f8', '#ff5500', '#1b1b1f', '#e6e9f0', '#2438e0', '#ff7a33', '#3b3d44', '#c9cfdc'];
 
 function box(x, y, color, cls = '', label = '') {
   const light = ['#e6e9f0', '#c9cfdc'].includes(color);
@@ -57,12 +57,12 @@ function ship() {
       <rect x="1552" y="372" width="16" height="10" fill="#ff5500"/>
     </g>
     ${stacks}
-    ${box(PORT.PICK.x, PORT.PICK.y, '#0016cb', 'svc-shipbox', 'THE SOURCERS')}
+    ${box(PORT.PICK.x, PORT.PICK.y, '#0058f8', 'svc-shipbox', 'THE SOURCERS')}
   </g>`;
 }
 
 function crane() {
-  const blue = '#0016cb', dark = '#0b0f3a';
+  const blue = '#0058f8', dark = '#0b0f3a';
   const leg = (x) => `<rect x="${x}" y="300" width="18" height="${PORT.ROAD_Y - 300}" fill="${blue}"/>
     <rect x="${x - 10}" y="${PORT.ROAD_Y - 14}" width="38" height="14" rx="2" fill="${dark}"/>`;
   return `<g class="svc-crane">
@@ -92,7 +92,7 @@ function crane() {
         <g class="svc-hook">
           <rect x="-64" y="0" width="128" height="12" rx="2" fill="#ffb800"/>
           <rect x="-64" y="0" width="128" height="3" fill="#fff" opacity=".4"/>
-          ${box(-61, 12, '#0016cb', 'svc-hookbox', 'THE SOURCERS')}
+          ${box(-61, 12, '#0058f8', 'svc-hookbox', 'THE SOURCERS')}
         </g>
       </g>
     </g>
@@ -118,7 +118,7 @@ function truck() {
       <rect x="742" y="${deck}" width="176" height="10" fill="#1b1b1f"/>
       <rect x="742" y="${deck + 10}" width="176" height="8" fill="#3b3d44"/>
       <rect x="760" y="${deck + 18}" width="80" height="10" fill="#1b1b1f"/>
-      ${box(769, deck - C.h, '#0016cb', 'svc-truckbox', 'THE SOURCERS')}
+      ${box(769, deck - C.h, '#0058f8', 'svc-truckbox', 'THE SOURCERS')}
       <!-- cab (facing right) -->
       <path d="M918 ${deck + 18} V${deck - 58} Q918 ${deck - 66} 926 ${deck - 66} H990 Q1004 ${deck - 66} 1010 ${deck - 50} L1024 ${deck - 14} V${deck + 18} Z" fill="#ff5500"/>
       <path d="M972 ${deck - 58} H992 Q1000 ${deck - 58} 1004 ${deck - 48} L1012 ${deck - 26} H972 Z" fill="#cfe0ff"/>
@@ -185,7 +185,7 @@ export function topTruck() {
   for (let y = 132; y < 390; y += 9) ribs += `M18 ${y}H102`;
   return `<svg class="svc-top-truck-svg" viewBox="0 0 120 420" aria-hidden="true">
     <g class="svc-top-trailer" style="transform-origin: 60px 120px">
-      <rect x="14" y="122" width="92" height="276" rx="3" fill="#0016cb"/>
+      <rect x="14" y="122" width="92" height="276" rx="3" fill="#0058f8"/>
       <path d="${ribs}" stroke="#000" stroke-opacity=".22" stroke-width="1.5"/>
       <rect x="14" y="122" width="92" height="276" rx="3" fill="none" stroke="#fff" stroke-opacity=".25" stroke-width="2"/>
       <text x="60" y="262" text-anchor="middle" transform="rotate(-90 60 262)" font-family="Space Grotesk, Arial" font-weight="700" font-size="14" letter-spacing="5" fill="#fff">THE SOURCERS</text>

@@ -5,7 +5,7 @@ const rng = (seed = 3) => () => {
   return (seed - 1) / 2147483646;
 };
 
-const BOX = ['#0016cb', '#ff5500', '#1b1b1f', '#e6e9f0', '#2438e0', '#ff7a33', '#3b3d44', '#c9cfdc', '#0016cb', '#0016cb'];
+const BOX = ['#0058f8', '#ff5500', '#1b1b1f', '#e6e9f0', '#2438e0', '#ff7a33', '#3b3d44', '#c9cfdc', '#0058f8', '#0058f8'];
 
 export function topShip() {
   const r = rng(21);

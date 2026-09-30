@@ -5,7 +5,7 @@ const rng = (seed = 1) => () => {
   return (seed - 1) / 2147483646;
 };
 
-const PALETTE = ['#0016cb', '#ff5500', '#1b1b1f', '#e9ebf0', '#2438e0', '#ff7a33', '#3b3d44', '#c9cfdc', '#0016cb', '#f4f4f4'];
+const PALETTE = ['#0058f8', '#ff5500', '#1b1b1f', '#e9ebf0', '#2438e0', '#ff7a33', '#3b3d44', '#c9cfdc', '#0058f8', '#f4f4f4'];
 
 function container(x, y, w, h, color, r) {
   const ribs = [];
